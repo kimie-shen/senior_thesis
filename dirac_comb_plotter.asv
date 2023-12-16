@@ -1,0 +1,15 @@
+x1=0.2;
+x2=0.3;
+
+for n1 = -1:1:1
+    for n2 = -1:1:1
+        for j = 0:1:1
+            plot(-x1-(2*n1+j),-x2-(2*n2+j),'o','MarkerEdgeColor','r')
+            plot(x1+(2*n1+j),x2 + (2*n2+j),'o','b')
+            plot(-x2-(2*n1+j),x1+(2*n2+j),'o','g')
+            plot(x2+(2*n1+j),x1+(2*n2+j),'o','c')
+            hold on
+        end
+    end
+end
+hold off
