@@ -1,18 +1,18 @@
 %% Calculate r values for various N
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
 potential = -0;
-%N_nums = [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53];
-%N_nums = [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41];
-N_nums = [47];
 
 % Side length ratios
 l1 = 1;
 l2 = 2;
 l3 = 3;
 
-%% Find max N
-upper_lim = 30000; % Max number of sites
-fprintf(['Max N = ' num2str(sqrt(upper_lim / (2 * ((l1 * l2) + (l2 * l3) + (l3 * l1)))))])
+% Find max N
+upper_lim = 33000; % Max number of sites allowed in memory
+max_N = floor(sqrt(upper_lim / (2 * ((l1 * l2) + (l2 * l3) + (l3 * l1)))));
+fprintf(['Max N = ' num2str(max_N) '\n'])
+
+N_nums = primes(max_N);
 
 %% Resume Program
 num_irreps = 8;
