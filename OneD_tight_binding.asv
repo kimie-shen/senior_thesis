@@ -1,0 +1,23 @@
+num_sites = 10; % Total number of sites
+L = 1; % Spacing
+H = zeros(num_sites, num_sites); % Hamiltonian matrix
+
+% For plotting purposes
+zeros = zeros(num_sites);
+ones = ones(num_sites);
+
+% Set matrix values
+for i = 1:num_sites
+    H(i, i) = -2/L^2;
+    H(i, mod(i-2, num_sites) + 1) = 1/L^2;
+    H(i, mod(i, num_sites) + 1) = 1/L^2;
+end
+
+% Find eigenvalues
+e = eig(H);
+
+plot(zeros, e, 'o', 'LineStyle','none', 'MarkerFaceColor','r', 'MarkerEdgeColor','r');
+hold on
+
+
+fprintf(num2str(4*pi^2/(L^2*num_sites^2)))

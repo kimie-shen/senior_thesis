@@ -1,0 +1,11 @@
+tic;
+[eigenvectors, eigenvalues] = eig(H + ((1 + sqrt(5))/2)*sigma2);
+toc
+
+% Subtract off sigma2 eigenvalues from eigenvalues
+sigma2_evals = zeros(6 * N^2, 1);
+for i = 1:(6 * N^2)
+    eigenvalues(i, i) = eigenvalues(i, i) -  ((1 + sqrt(5))/2) ...
+    * (eigenvectors(i, :) * sigma2 * eigenvalues(i, :));
+end
+
