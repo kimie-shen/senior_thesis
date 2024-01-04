@@ -11,8 +11,10 @@ l2 = 2;
 l3 = 3;
 
 %% Find max N
-upper_lim = 30000; % Max number of sites
-fprintf(num2str(sqrt(upper_lim / (2 * ((l1 * l2) + (l2 * l3) + (l3 * l1))))))
+N = 50;
+upper_lim = 3e4; % Max number of sites
+
+fprintf(num2str(2 * ((l1 * l2) + (l2 * l3) + (l3 * l1)) * N^2 < 3e4 ))
 
 %% Resume Program
 num_irreps = 8;
