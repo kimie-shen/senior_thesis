@@ -12,7 +12,7 @@ l3 = 3;
 
 %% Find max N
 upper_lim = 30000; % Max number of sites
-fprintf(num2str(sqrt(upper_lim / (2 * ((l1 * l2) + (l2 * l3) + (l3 * l1))))))
+fprintf(['Max N = ' num2str(sqrt(upper_lim / (2 * ((l1 * l2) + (l2 * l3) + (l3 * l1)))))])
 
 %% Resume Program
 num_irreps = 8;
