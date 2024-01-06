@@ -1,6 +1,6 @@
 %% Calculate r values for various N
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
-potential = -0;
+potential = -0;   % Corner potential
 
 % Side length ratios
 l1 = 1;
@@ -8,13 +8,13 @@ l2 = 3;
 l3 = 4;
 
 % Find max N
-upper_lim = 33000; % Max number of sites allowed in memory
+upper_lim = 30000; % Max number of sites allowed in memory
 max_N = floor(sqrt(upper_lim / (2 * ((l1 * l2) + (l2 * l3) + (l3 * l1)))));
 fprintf(['Max N = ' num2str(max_N) '\n'])
 
 N_nums = primes(max_N);
 
-%% Resume Program
+%% Begin Program
 num_irreps = 8;
 num_symmetries = 4;
 solvable_irreps = 2;
@@ -54,61 +54,57 @@ for n = 1:size(N_nums, 2)
         H(i, left(i, N, l1, l2, l3, total_sites)) = -1/L^2;       
     end
 
-    % Add potentials at all vertices (NEED TO FIX)
-    % Face 1
-    index = index_from_coord(1, 1, 1, N, l1, l2, l3, total_sites);
-    H(index, index) = H(index, index) + potential;
-
-    index = index_from_coord(l1 * N, 1, 1, N, l1, l2, l3, total_sites);
-    H(index, index) = H(index, index) + potential;
-
-    index = index_from_coord(1, l3 * N, 1, N, l1, l2, l3, total_sites);
-    H(index, index) = H(index, index) + potential;
-
-    index = index_from_coord(11 * N, l3 * N, 1, N, l1, l2, l3, total_sites);
-    H(index, index) = H(index, index) + potential;
-
-    % Face 4
-    index = index_from_coord(1, 1, 4, N, l1, l2, l3, total_sites);
-    H(index, index) = H(index, index) + potential;
-
-    index = index_from_coord(l1 * N, 1, 4, N, l1, l2, l3, total_sites);
-    H(index, index) = H(index, index) + potential;
-
-    index = index_from_coord(1, l3 * N, 4, N, l1, l2, l3, total_sites);
-    H(index, index) = H(index, index) + potential;
-
-    index = index_from_coord(11 * N, l3 * N, 4, N, l1, l2, l3, total_sites);
-    H(index, index) = H(index, index) + potential;
-    
-    
-    for face = 1:6
-        % Bottom left corner
-        x = 1; 
-        y = 1;
-        index = index_from_coord(x, y, face, N, l1, l2, l3, total_sites);
+    %% Add potentials at all vertices
+    % Faces 1 and 4
+    faces = [1, 4];
+    for i = 1:2
+        index = index_from_coord(1, 1, faces(i), N, l1, l2, l3, total_sites);
         H(index, index) = H(index, index) + potential;
     
-        % Top left corner
-        x = 1; 
-        y = N;
-        index = index_from_coord(x, y, face, N, l1, l2, l3, total_sites);
+        index = index_from_coord(l1 * N, 1, faces(i), N, l1, l2, l3, total_sites);
         H(index, index) = H(index, index) + potential;
     
-        % Bottom right corner
-        x = N; 
-        y = 1;
-        index = index_from_coord(x, y, face, N, l1, l2, l3, total_sites);
+        index = index_from_coord(1, l3 * N, faces(i), N, l1, l2, l3, total_sites);
         H(index, index) = H(index, index) + potential;
     
-        % Top right corner
-        x = N; 
-        y= N;
-        index = index_from_coord(x, y, face, N, l1, l2, l3, total_sites);
+        index = index_from_coord(11 * N, l3 * N, faces(i), N, l1, l2, l3, total_sites);
+        fprintf([num2str(index) '\n'])
+        H(index, index) = H(index, index) + potential;
+    end
+
+    % Faces 2 and 6
+    faces = [2, 6];
+    for i = 1:2
+        index = index_from_coord(1, 1, faces(i), N, l1, l2, l3, total_sites);
+        H(index, index) = H(index, index) + potential;
+    
+        index = index_from_coord(l1 * N, 1, faces(i), N, l1, l2, l3, total_sites);
+        H(index, index) = H(index, index) + potential;
+    
+        index = index_from_coord(1, l2 * N, faces(i), N, l1, l2, l3, total_sites);
+        H(index, index) = H(index, index) + potential;
+    
+        index = index_from_coord(11 * N, l2 * N, faces(i), N, l1, l2, l3, total_sites);
+        H(index, index) = H(index, index) + potential;
+    end
+
+    % Faces 3 and 5
+    faces = [3, 5];
+    for i = 1:2
+        index = index_from_coord(1, 1, faces(i), N, l1, l2, l3, total_sites);
+        H(index, index) = H(index, index) + potential;
+    
+        index = index_from_coord(l2 * N, 1, faces(i), N, l1, l2, l3, total_sites);
+        H(index, index) = H(index, index) + potential;
+    
+        index = index_from_coord(1, l3 * N, faces(i), N, l1, l2, l3, total_sites);
+        H(index, index) = H(index, index) + potential;
+    
+        index = index_from_coord(12 * N, l3 * N, faces(i), N, l1, l2, l3, total_sites);
         H(index, index) = H(index, index) + potential;
     end
     
-    % Generate matrix for c2x symmetry 
+    %% Generate matrix for c2x symmetry 
     C2x = zeros(total_sites, total_sites);
     for i = 1:(total_sites)
         C2x(i, c2x_index(i, N, l1, l2, l3, total_sites)) = 1;
@@ -259,18 +255,6 @@ for n = 1:size(N_nums, 2)
     index_b1u = 1;
     index_b2u = 1;
     index_b3u = 1;
-
-    % Counter for accidental degeneracies
-    ag_au = 0;
-    b2g_b2u = 0;
-    b2g_b3g = 0;
-    b2u_b3u = 0;
-    b1g_b1u = 0;
-    ag_b3g = 0;
-    b1g_b2g = 0;
-    au_b3u = 0;
-    b1u_b2u = 0;
-    b3g_b3u = 0;
     
     % Round the energy_levels characters
     energy_levels_rounded = zeros(size(energy_levels, 1), num_symmetries + 3);
@@ -312,66 +296,6 @@ for n = 1:size(N_nums, 2)
         elseif (isequal(traces, [1, -1, -1, +1, -1])) % B3u
             elevels_b3u(index_b3u, :) = energy_levels_rounded(i, :);
             index_b3u = index_b3u + 1;
-        elseif (isequal(traces, [2, 2, 2, 2, 0])) % Accidental degeneracy Ag + Au
-            elevels_ag(index_ag, :) = energy_levels_rounded(i, :);
-            index_ag = index_ag + 1;
-            elevels_au(index_au, :) = energy_levels_rounded(i, :); 
-            index_au = index_au + 1;
-            ag_au = ag_au + 1;
-        elseif (isequal(traces, [2, 2, -2, -2, 0])) % Accidental degeneracy B1g + B1u
-            elevels_b1g(index_b1g, :) = energy_levels_rounded(i, :);
-            index_b1g = index_b1g + 1;
-            elevels_b1u(index_b1u, :) = energy_levels_rounded(i, :); 
-            index_b1u = index_b1u + 1;
-            b1g_b1u = b1g_b1u + 1;
-        elseif (isequal(traces, [2, -2, 2, -2, 0])) % Accidental degeneracy B2g + B2u
-            elevels_b2g(index_b2g, :) = energy_levels_rounded(i, :);
-            index_b2g = index_b2g + 1;
-            elevels_b2u(index_b2u, :) = energy_levels_rounded(i, :); 
-            index_b2u = index_b2u + 1;
-            b2g_b2u = b2g_b2u + 1;
-        elseif (isequal(traces, [2, -2, 0, 0, 2])) % Accidental degeneracy B2g + B3g
-            elevels_b2g(index_b2g, :) = energy_levels_rounded(i, :);
-            index_b2g = index_b2g + 1;
-            elevels_b3g(index_b3g, :) = energy_levels_rounded(i, :); 
-            index_b3g = index_b3g + 1;
-            b2g_b3g = b2g_b3g + 1;
-        elseif (isequal(traces, [2, -2, 0, 0, -2])) % Accidental degeneracy B2u + B3u
-            elevels_b2u(index_b2u, :) = energy_levels_rounded(i, :);
-            index_b2u = index_b2u + 1;
-            elevels_b3u(index_b3u, :) = energy_levels_rounded(i, :); 
-            index_b3u = index_b3u + 1;
-            b2u_b3u = b2u_b3u + 1;
-        elseif (isequal(traces, [2, 0, 0, 2, 2])) % Accidental degeneracy Ag + B3g
-            elevels_ag(index_ag, :) = energy_levels_rounded(i, :);
-            index_ag = index_ag + 1;
-            elevels_b3g(index_b3g, :) = energy_levels_rounded(i, :); 
-            index_b3g = index_b3g + 1;
-            ag_b3g = ag_b3g + 1;
-        elseif (isequal(traces, [2, 0, 0, -2, 2])) % Accidental degeneracy B1g + B2g
-            elevels_b1g(index_b1g, :) = energy_levels_rounded(i, :);
-            index_b1g = index_b1g + 1;
-            elevels_b2g(index_b2g, :) = energy_levels_rounded(i, :); 
-            index_b2g = index_b2g + 1;
-            b1g_b2g = b1g_b2g + 1;
-        elseif (isequal(traces, [2, 0, 0, 2, -2])) % Accidental degeneracy Au + B3u
-            elevels_au(index_au, :) = energy_levels_rounded(i, :);
-            index_au = index_au + 1;
-            elevels_b3u(index_b3u, :) = energy_levels_rounded(i, :); 
-            index_b3u = index_b3u + 1;
-            au_b3u = au_b3u + 1;
-        elseif (isequal(traces, [2, 0, 0, -2, -2])) % Accidental degeneracy B1u + B2u
-            elevels_b1u(index_b1u, :) = energy_levels_rounded(i, :);
-            index_b1u = index_b1u + 1;
-            elevels_b2u(index_b2u, :) = energy_levels_rounded(i, :); 
-            index_b2u = index_b2u + 1;
-            b1u_b2u = b1u_b2u + 1;
-        elseif (isequal(traces, [2, -2, -2, 2, 0])) % Accidental degeneracy B3g + B3u
-            elevels_b3g(index_b3g, :) = energy_levels_rounded(i, :);
-            index_b3g = index_b3g + 1;
-            elevels_b3u(index_b3u, :) = energy_levels_rounded(i, :); 
-            index_b3u = index_b3u + 1;
-            b3g_b3u = b3g_b3u + 1;
         else 
             fprintf([num2str(energy_levels_rounded(i, 1)) ' ' num2str(energy_levels_rounded(i, 2)) ' ' ...
                 num2str(energy_levels_rounded(i, 3)) ' ' num2str(energy_levels_rounded(i, 4)) ' ' ...
@@ -540,18 +464,9 @@ for n = 1:size(N_nums, 2)
     
     set(figure(index_n),'position',[0,100,25000,400])
     saveas(gcf, [folderName '/N=' num2str(N) '_elevel_hist.jpeg']);
-
-    %% Plot accidental degeneracies
-    figure(index_n + 1);
-    bar(x, y);
-    title(['Accidental Degeneracies N=' num2str(N)])
-    ylabel('Count')
-    labels = categorical({'Ag + Au', 'B1g + b1u', 'B2g + B2u', 'B2g + B3g', 'B2u + B3u', 'Ag + B3g', 'B1g + B2g', 'Au + B3u', 'B1u + B2u', 'B3g + B3u'});
-    bar(labels, [ag_au b1g_b1u b2g_b2u b2g_b3g b2u_b3u ag_b3g b1g_b2g au_b3u b1u_b2u b3g_b3u])
-    saveas(gcf, [folderName '/N=' num2str(N) '_acc_degen.jpeg']);
     
     % Increment indices
-    index_n = index_n + 2;
+    index_n = index_n + 1;
     index_size = index_size + 1;
     index_r = index_r + 1;
 end

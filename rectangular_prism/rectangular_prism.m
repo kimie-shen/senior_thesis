@@ -4,8 +4,8 @@ potential = -0;
 
 % Side length ratios
 l1 = 1;
-l2 = 2;
-l3 = 3;
+l2 = 3;
+l3 = 4;
 
 % Find max N
 upper_lim = 33000; % Max number of sites allowed in memory
@@ -52,33 +52,6 @@ for n = 1:size(N_nums, 2)
         %fprintf([num2str(i) ' ' num2str(upper(i, N, l1, l2, l3, total_sites)) ' ' num2str(lower(i, N, l1, l2, l3, total_sites)) ' ' ...
             %num2str(right(i, N, l1, l2, l3, total_sites)) ' ' num2str(left(i, N, l1, l2, l3, total_sites)) '\n'])
         H(i, left(i, N, l1, l2, l3, total_sites)) = -1/L^2;       
-    end
-
-    % Add potentials at all vertices (NEED TO FIX)
-    for face = 1:6
-        % Bottom left corner
-        x = 1; 
-        y = 1;
-        index = index_from_coord(x, y, face, N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
-    
-        % Top left corner
-        x = 1; 
-        y = N;
-        index = index_from_coord(x, y, face, N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
-    
-        % Bottom right corner
-        x = N; 
-        y = 1;
-        index = index_from_coord(x, y, face, N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
-    
-        % Top right corner
-        x = N; 
-        y= N;
-        index = index_from_coord(x, y, face, N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
     end
     
     % Generate matrix for c2x symmetry 
@@ -512,7 +485,7 @@ for n = 1:size(N_nums, 2)
     ylabel('Counts')
     
     set(figure(index_n),'position',[0,100,25000,400])
-    saveas(gcf, [folderName '/N= ' num2str(N) '_elevel_hist.jpeg']);
+    saveas(gcf, [folderName '/N=' num2str(N) '_elevel_hist.jpeg']);
 
     %% Plot accidental degeneracies
     figure(index_n + 1);
@@ -521,7 +494,7 @@ for n = 1:size(N_nums, 2)
     ylabel('Count')
     labels = categorical({'Ag + Au', 'B1g + b1u', 'B2g + B2u', 'B2g + B3g', 'B2u + B3u', 'Ag + B3g', 'B1g + B2g', 'Au + B3u', 'B1u + B2u', 'B3g + B3u'});
     bar(labels, [ag_au b1g_b1u b2g_b2u b2g_b3g b2u_b3u ag_b3g b1g_b2g au_b3u b1u_b2u b3g_b3u])
-    saveas(gcf, [folderName '/N= ' num2str(N) '_acc_degen.jpeg']);
+    saveas(gcf, [folderName '/N=' num2str(N) '_acc_degen.jpeg']);
     
     % Increment indices
     index_n = index_n + 2;

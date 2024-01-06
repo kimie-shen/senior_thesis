@@ -1,6 +1,8 @@
 % Plot the eigenvector
+folderName = 'cube_sigma_d_evecs_no_title';
+mkdir(folderName);
 
-for k = 409:409
+for k = 0:49
     num_sites = 75;
     start_index = k * 10 + 1;
     end_index = start_index + 9;
@@ -29,13 +31,13 @@ for k = 409:409
     
         if (i == start_index)
             figure(1)
-            tiledlayout(2, ceil((end_index - start_index + 1)/2))
+            tiledlayout(2, ceil((end_index - start_index + 1)/2), 'TileSpacing', 'tight','Padding','Tight')
             nexttile
             scatter3(X, Y, eigenvectors(:, i), [], cm(color_indices, :), '.')
             xlabel('x');
             ylabel('y');
             view(0,90);
-            title(['wavefunction index = ' num2str(i)])
+            %title(['wavefunction index = ' num2str(i)])
             daspect([1 1 0.2])
         else
             nexttile
@@ -43,12 +45,12 @@ for k = 409:409
             xlabel('x');
             ylabel('y');
             view(0,90);
-            title(['wavefunction index = ' num2str(i)])
+            %title(['wavefunction index = ' num2str(i)])
             daspect([1 1 0.2])
         end
     end
     set(figure(1),'position',[0,0,1600,900])
-    saveas(gcf, ['cube_sigma2_evecs/' num2str(k * 10 + 1) '-' num2str(k * 10 + 10) '.jpeg']);
+    saveas(gcf, [folderName '/cube_' num2str(k * 10 + 1) '-' num2str(k * 10 + 10) '.jpeg']);
 end
 
 % Coordinate functions
