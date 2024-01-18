@@ -1,9 +1,6 @@
 % Plot a solvable cube eigenstate
-m = 2;
-n = -4;
-
-n1 = m + n;
-n2 = m - n;
+n1 = 1;
+n2 = 1;
 num_sites = 75;
 
 % Find x-y coordinates
@@ -14,7 +11,7 @@ for i = 1:(6 * num_sites^2)
     Y(i) = ycoord(i, num_sites);
 end
 
-f1 = @(x,y) cos(pi*(x*n1+y*n2))*cos(pi*(y*n1-x*n2));
+f1 = @(x,y) cos(pi*(x*n1+y*n2))+cos(pi*(y*n1-x*n2));
 eigenvector = zeros(6 * num_sites^2, 1);
 for i = 1:(6 * num_sites^2)
     eigenvector(i) = f1(X(i), Y(i));

@@ -1,11 +1,10 @@
 % Calculate r values for various N
+clear;
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
-N_start = 20;
-N_spacing = 5;
-N_end = 20;
-potential = -0;
+potential = 0;
 %N_nums = [5, 10, 15];
-N_nums = [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73];
+%N_nums = [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73];
+N_nums = [73];
 
 r_array = zeros(size(N_nums, 1), 11);
 size_array = zeros(size(N_nums, 1), 11);
@@ -14,6 +13,7 @@ solvable_prop = zeros(size(N_nums, 1), 4);
 index_n = 1;
 index_r = 1;
 index_size = 1;
+
 
 for n = 1:size(N_nums, 2)
     N = N_nums(n);
@@ -227,16 +227,6 @@ for n = 1:size(N_nums, 2)
         if (isequal(traces, [1, 1, 1, 1, 1])) % A1g
             elevels_a1g(index_a1g, :) = energy_levels_rounded(i, :);
             index_a1g = index_a1g + 1;
-        elseif (isequal(traces, [2, 0, 2, 0, 2])) % Accidental degeneracy A1g + A1u
-            elevels_a1g(index_a1g, :) = energy_levels_rounded(i, :);
-            index_a1g = index_a1g + 1;
-            elevels_a1u(index_a1u, :) = energy_levels_rounded(i, :); 
-            index_a1u = index_a1u + 1;
-        elseif (isequal(traces, [2, 0, 2, 0, -2])) % Accidental degeneracy A2g + A2u
-            elevels_a2g(index_a2g, :) = energy_levels_rounded(i, :);
-            index_a2g = index_a2g + 1;
-            elevels_a2u(index_a2u, :) = energy_levels_rounded(i, :);
-            index_a2u = index_a2u + 1;
         elseif (isequal(traces, [1, -1, 1, 1, -1])) % A2g
             elevels_a2g(index_a2g, :) = energy_levels_rounded(i, :);
             index_a2g = index_a2g + 1;
@@ -264,6 +254,16 @@ for n = 1:size(N_nums, 2)
         elseif (isequal(traces, [3, -1, 0, -3, +1])) %T2u
             elevels_t2u(index_t2u, :) = energy_levels_rounded(i, :);
             index_t2u = index_t2u + 1;
+        elseif (isequal(traces, [2, 0, 2, 0, 2])) % Accidental degeneracy A1g + A1u
+            elevels_a1g(index_a1g, :) = energy_levels_rounded(i, :);
+            index_a1g = index_a1g + 1;
+            elevels_a1u(index_a1u, :) = energy_levels_rounded(i, :); 
+            index_a1u = index_a1u + 1;
+        elseif (isequal(traces, [2, 0, 2, 0, -2])) % Accidental degeneracy A2g + A2u
+            elevels_a2g(index_a2g, :) = energy_levels_rounded(i, :);
+            index_a2g = index_a2g + 1;
+            elevels_a2u(index_a2u, :) = energy_levels_rounded(i, :);
+            index_a2u = index_a2u + 1;
         else 
             fprintf([num2str(energy_levels_rounded(i, 1)) ' ' num2str(energy_levels_rounded(i, 2)) ' ' ...
                 num2str(energy_levels_rounded(i, 3)) ' ' num2str(energy_levels_rounded(i, 4)) ' ' ...
@@ -575,7 +575,7 @@ plot(N_nums, sum(solvable_prop, 2), 'Linestyle','-','Marker','.', 'MarkerEdgeCol
 title('Proportion of states which are solvable')
 xlabel('N')
 yline(1/12, '--', '1/12')
-ylim([0.6, 0.12])
+ylim([0.0, 0.1])
 ylabel('Proportion')
 
 

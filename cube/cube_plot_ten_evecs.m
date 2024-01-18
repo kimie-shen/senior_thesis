@@ -1,18 +1,18 @@
 % Plot the eigenvector
-folderName = 'cube_sigma_d_evecs_no_title';
+folderName = 'cube_sigma_d_evecs';
 mkdir(folderName);
 
-for k = 0:49
-    num_sites = 75;
+for k = 0:199
+    N = 73;
     start_index = k * 10 + 1;
     end_index = start_index + 9;
     
     
-    X = zeros(6 * num_sites^2, 1);
-    Y = zeros(6 * num_sites^2, 1);
-    for i = 1:(6 * num_sites^2)
-        X(i) = xcoord(i, num_sites);
-        Y(i) = ycoord(i, num_sites);
+    X = zeros(6 * N^2, 1);
+    Y = zeros(6 * N^2, 1);
+    for i = 1:(6 * N^2)
+        X(i) = xcoord(i, N);
+        Y(i) = ycoord(i, N);
     end
     
     for i=start_index:end_index
@@ -23,7 +23,7 @@ for k = 0:49
         color_indices = ceil((max_of_evec - eigenvectors(:, i)) / (max_of_evec - min_of_evec) * cn);
     
         % Remove zeros from color indices
-        for j = 1:(6 * num_sites^2)
+        for j = 1:(6 * N^2)
             if (color_indices(j) == 0)
                 color_indices(j) = 1;
             end
@@ -37,7 +37,7 @@ for k = 0:49
             xlabel('x');
             ylabel('y');
             view(0,90);
-            %title(['wavefunction index = ' num2str(i)])
+            title(['wavefunction index = ' num2str(i)])
             daspect([1 1 0.2])
         else
             nexttile
@@ -45,7 +45,7 @@ for k = 0:49
             xlabel('x');
             ylabel('y');
             view(0,90);
-            %title(['wavefunction index = ' num2str(i)])
+            title(['wavefunction index = ' num2str(i)])
             daspect([1 1 0.2])
         end
     end

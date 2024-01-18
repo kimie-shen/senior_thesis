@@ -3,7 +3,7 @@ tolerance = 1e-8;  % Tolerance for degenerate energy levels
 potential = -0;
 
 % Side length ratios
-l1 = 1;
+l1 = 2;
 l2 = 3;
 l3 = 4;
 
@@ -487,17 +487,8 @@ for n = 1:size(N_nums, 2)
     set(figure(index_n),'position',[0,100,25000,400])
     saveas(gcf, [folderName '/N=' num2str(N) '_elevel_hist.jpeg']);
 
-    %% Plot accidental degeneracies
-    figure(index_n + 1);
-    bar(x, y);
-    title(['Accidental Degeneracies N=' num2str(N)])
-    ylabel('Count')
-    labels = categorical({'Ag + Au', 'B1g + b1u', 'B2g + B2u', 'B2g + B3g', 'B2u + B3u', 'Ag + B3g', 'B1g + B2g', 'Au + B3u', 'B1u + B2u', 'B3g + B3u'});
-    bar(labels, [ag_au b1g_b1u b2g_b2u b2g_b3g b2u_b3u ag_b3g b1g_b2g au_b3u b1u_b2u b3g_b3u])
-    saveas(gcf, [folderName '/N=' num2str(N) '_acc_degen.jpeg']);
-    
     % Increment indices
-    index_n = index_n + 2;
+    index_n = index_n + 1;
     index_size = index_size + 1;
     index_r = index_r + 1;
 end

@@ -1,43 +1,66 @@
 % Calculate energy spacings of solvable eigenstates
-num_sites = 75;
-energies_a1g = zeros(ceil(num_sites^2 / 2), 1);
-energies_a2g = zeros(ceil(num_sites^2 / 2), 1);
-energies_a1u = zeros(ceil(num_sites^2 / 2), 1);
-energies_a2u = zeros(ceil(num_sites^2 / 2), 1);
+clear; 
+
+num_sites = 73;
+energies_a1g = zeros(ceil(num_sites^2 / 2), 3);
+energies_a2g = zeros(ceil(num_sites^2 / 2), 3);
+energies_a1u = zeros(ceil(num_sites^2 / 2), 3);
+energies_a2u = zeros(ceil(num_sites^2 / 2), 3);
 
 index_a1g = 1;
 index_a1u = 1;
 index_a2g = 1;
 index_a2u = 1;
 
-% Fill in A1g and A1u wavefunctions: (n1, n2) with n1 =/= n2
-for n1 = 0:(num_sites - 2)
+% Fill in A1g and A1u wavefunctions: (n1, n2) with n1 =/= n2, both non-zero
+for n1 = 1:(num_sites - 2)
     for n2 = (n1 + 2):2:num_sites
         if (mod(n1, 2) == 0)
-            energies_a1g(index_a1g) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n2 / num_sites));
+            energies_a1g(index_a1g, 1) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n2 / num_sites));
+            energies_a1g(index_a1g, 2) = n1;
+            energies_a1g(index_a1g, 3) = n2;
+            %fprintf(['n1=' num2str(n1) ' n2=' num2str(n2) '\n'])
             index_a1g = index_a1g + 1;
 
-            energies_a1u(index_a1u) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n2 / num_sites));
+            energies_a1u(index_a1u, 1) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n2 / num_sites));
+            energies_a1u(index_a1u, 2) = n1;
+            energies_a1u(index_a1u, 3) = n2;
             index_a1u = index_a1u + 1;
         else
             energies_a2g(index_a2g) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n2 / num_sites));
+            energies_a2g(index_a2g, 2) = n1;
+            energies_a2g(index_a2g, 3) = n2;
             index_a2g = index_a2g + 1;
 
             energies_a2u(index_a2u) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n2 / num_sites));
+            energies_a2u(index_a2u, 2) = n1;
+            energies_a2u(index_a2u, 3) = n2;
             index_a2u = index_a2u + 1;
         end
     end
 end
 
-% Fill in A1g wavefunctions: (n1, n1) with n1 even
+% Fill in A1g wavefunctions: (0, n1) with n1 even
 for n1 = 0:2:num_sites
+    energies_a1g(index_a1g) = 2 * num_sites^2 * (2 - cos(pi * 0 / num_sites) - cos(pi * n1 / num_sites));
+    energies_a1g(index_a1g, 2) = 0;
+    energies_a1g(index_a1g, 3) = n1;
+    index_a1g = index_a1g + 1;
+end
+
+% Fill in A1g wavefunctions: (n1, n1) with n1 even
+for n1 = 2:2:num_sites
     energies_a1g(index_a1g) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n1 / num_sites));
+    energies_a1g(index_a1g, 2) = n1;
+    energies_a1g(index_a1g, 3) = n1;
     index_a1g = index_a1g + 1;
 end
 
 % Fill in A2u wavefunctions: (n1, n1) with n1 odd
 for n1 = 1:2:num_sites
     energies_a2u(index_a2u) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n1 / num_sites));
+    energies_a2u(index_a2u, 2) = n1;
+    energies_a2u(index_a2u, 3) = n1;
     index_a2u = index_a2u + 1;
 end
 
@@ -56,10 +79,17 @@ if (index_a2g > 1)
 end 
 
 % Sort energies
-energies_a1u = sort(energies_a1u);
-energies_a1g = sort(energies_a1g);
-energies_a2u = sort(energies_a2u);
-energies_a2g = sort(energies_a2g);
+[scratch_1, id] = sort(energies_a1g(:,1));
+energies_a1g = energies_a1g(id, :);
+
+[scratch_2, id] = sort(energies_a1u(:,1));
+energies_a1u = energies_a1u(id, :);
+
+[scratch_3, id] = sort(energies_a2g(:,1));
+energies_a2g = energies_a2g(id, :);
+
+[scratch_4, id] = sort(energies_a2u(:,1));
+energies_a2u = energies_a2u(id, :);
 
 %% Find energy level spacings
 % Make vector of energy level spacings
@@ -85,10 +115,10 @@ for i = 1:(size(energies_a2g, 1) - 1)
 end 
 
 % Compute r values
-r_a1g = LSR(spacings_a1g);
-r_a1u = LSR(spacings_a1u);
-r_a2u = LSR(spacings_a2u);
-r_a2g = LSR(spacings_a2g);
+r_a1g = LSR(spacings_a1g(:, 1));
+r_a1u = LSR(spacings_a1u(:, 1));
+r_a2u = LSR(spacings_a2u(:, 1));
+r_a2g = LSR(spacings_a2g(:, 1));
 
 % Plot histogram
 tiledlayout(1,4)

@@ -1,6 +1,6 @@
 %% Calculate r values for various N
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
-potential = -0;   % Corner potential
+corner_potential = -0;   % Corner potential
 
 % Side length ratios
 l1 = 1;
@@ -11,21 +11,23 @@ l3 = 4;
 upper_lim = 30000; % Max number of sites allowed in memory
 max_N = floor(sqrt(upper_lim / (2 * ((l1 * l2) + (l2 * l3) + (l3 * l1)))));
 fprintf(['Max N = ' num2str(max_N) '\n'])
-
 N_nums = primes(max_N);
+
+% Make directory
+folderName = ['l1=' num2str(l1) '_l2=' num2str(l2) '_l3=' num2str(l3)];
+mkdir(folderName);
 
 %% Begin Program
 num_irreps = 8;
 num_symmetries = 4;
 solvable_irreps = 2;
 
+% Allocate variable space
 r_array = zeros(size(N_nums, 1), (num_irreps + 1));
 size_array = zeros(size(N_nums, 1), (num_irreps + 1));
 solvable_prop = zeros(size(N_nums, 1), solvable_irreps);
 
-folderName = ['l1=' num2str(l1) '_l2=' num2str(l2) '_l3=' num2str(l3)];
-mkdir(folderName);
-
+% Set indices
 index_n = 1;
 index_r = 1;
 index_size = 1;
@@ -59,49 +61,49 @@ for n = 1:size(N_nums, 2)
     faces = [1, 4];
     for i = 1:2
         index = index_from_coord(1, 1, faces(i), N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     
         index = index_from_coord(l1 * N, 1, faces(i), N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     
         index = index_from_coord(1, l3 * N, faces(i), N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     
         index = index_from_coord(11 * N, l3 * N, faces(i), N, l1, l2, l3, total_sites);
         fprintf([num2str(index) '\n'])
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     end
 
     % Faces 2 and 6
     faces = [2, 6];
     for i = 1:2
         index = index_from_coord(1, 1, faces(i), N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     
         index = index_from_coord(l1 * N, 1, faces(i), N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     
         index = index_from_coord(1, l2 * N, faces(i), N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     
         index = index_from_coord(11 * N, l2 * N, faces(i), N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     end
 
     % Faces 3 and 5
     faces = [3, 5];
     for i = 1:2
         index = index_from_coord(1, 1, faces(i), N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     
         index = index_from_coord(l2 * N, 1, faces(i), N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     
         index = index_from_coord(1, l3 * N, faces(i), N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     
         index = index_from_coord(12 * N, l3 * N, faces(i), N, l1, l2, l3, total_sites);
-        H(index, index) = H(index, index) + potential;
+        H(index, index) = H(index, index) + corner_potential;
     end
     
     %% Generate matrix for c2x symmetry 
@@ -129,7 +131,7 @@ for n = 1:size(N_nums, 2)
     C2z = zeros(total_sites, total_sites);
     for i = 1:(total_sites)
         C2z(i, c2z_index(i, N, l1, l2, l3, total_sites)) = 1;
-        %fprintf([num2str(i) ' ' num2str(c2y_index(i, N, l1, l2, l3, total_sites)) '\n'])
+        %fprintf([num2str(i) ' ' num2str(c2z_index(i, N, l1, l2, l3, total_sites)) '\n'])
     end
 
     % Generate matrix for i

@@ -1,23 +1,44 @@
-%% Calculate r values for various N
+%% Complete calculation for square prism (no corner potential)
+clear;
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
-potential = -0;
-%N_nums = [5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53];
-N_nums = [31, 37, 41, 43, 47];
+corner_potential = -0;
 
-r_array = zeros(size(N_nums, 1), 11);
-size_array = zeros(size(N_nums, 1), 11);
-solvable_prop = zeros(size(N_nums, 1), 4);
+% Side length ratios
+l1 = 1;
+l2 = 2;
 
+% Is l1 even or not?
+l1_even = false;
+if (mod(l1, 2) == 0)
+    l1_even = true;
+end
+
+% Find max N
+upper_lim = 30000; % Max number of sites allowed in laptop memory
+max_N = floor(sqrt(upper_lim / (2 * (l1 * l1) + 4 * (l1 * l2))));
+fprintf(['Max N = ' num2str(max_N) '\n'])
+N_nums = primes(max_N);
+
+% Make directory
+folderName = ['square_prism_l1=' num2str(l1) '_l2=' num2str(l2)];
+mkdir(folderName);
+
+% Set indices
 index_n = 1;
 index_r = 1;
 index_size = 1;
+
+% Allocate variable space
+r_array = zeros(size(N_nums, 1), 11);
+size_array = zeros(size(N_nums, 1), 11);
+solvable_prop = zeros(size(N_nums, 1), 4);
 
 %% Start loop
 for n = 1:size(N_nums, 2)
 
     N = N_nums(n);
     fprintf(['\n    N = ' num2str(N) '\n'])
-    total_sites = 10 * N^2; % Total number of sites in unfolded polyhedron
+    total_sites = (2 * l1^2 + 4 * l1 * l2) * N^2; % Total number of sites in unfolded polyhedron
 
     %% Diagonalize H and sigma_d matrices
     tic;
@@ -28,44 +49,18 @@ for n = 1:size(N_nums, 2)
     
     for i = 1:total_sites
         H(i, i) = 4/L^2;
-        H(i, upper(i, N)) = -1/L^2;
-        H(i, lower(i, N)) = -1/L^2;
-        H(i, right(i, N)) = -1/L^2;
-        H(i, left(i, N)) = -1/L^2;
+        H(i, upper(i, N, l1, l2, total_sites)) = -1/L^2;
+        H(i, lower(i, N, l1, l2, total_sites)) = -1/L^2;
+        H(i, right(i, N, l1, l2, total_sites)) = -1/L^2;
+        H(i, left(i, N, l1, l2, total_sites)) = -1/L^2;
     end
 
-    % Add corner potentials
     % Add potentials at all vertices
-    for face = 1:6
-        % Bottom left corner
-        x = 1; 
-        y = 1;
-        index = index_from_coord(x, y, face, N);
-        H(index, index) = H(index, index) + potential;
-    
-        % Top left corner
-        x = 1; 
-        y = N;
-        index = index_from_coord(x, y, face, N);
-        H(index, index) = H(index, index) + potential;
-    
-        % Bottom right corner
-        x = N; 
-        y = 1;
-        index = index_from_coord(x, y, face, N);
-        H(index, index) = H(index, index) + potential;
-    
-        % Top right corner
-        x = N; 
-        y= N;
-        index = index_from_coord(x, y, face, N);
-        H(index, index) = H(index, index) + potential;
-    end
     
     % Generate matrix for sigma_d symmetry 
     sigma_d = zeros(total_sites, total_sites);
     for i = 1:(total_sites)
-        sigma_d(i, sigma_d_index(i, N)) = 1;
+        sigma_d(i, sigma_d_index(i, N, l1, l2, total_sites)) = 1;
     end
     
     %% Calculate eigenvectors and eigenvalues
@@ -78,19 +73,19 @@ for n = 1:size(N_nums, 2)
     % Generate matrix for C2x
     C2x = zeros(total_sites, total_sites);
     for i = 1:(total_sites)
-        C2x(i, c2x_index(i, N)) = 1;
+        C2x(i, c2x_index(i, N, l1, l2, total_sites)) = 1;
     end
 
     % Generate matrix for i
     inv = zeros(total_sites, total_sites);
     for i = 1:(total_sites)
-        inv(i, inv_index(i, N)) = 1;
+        inv(i, inv_index(i, N, l1, l2, total_sites)) = 1;
     end
 
     % Generate matrix for C2y
     C2y = zeros(total_sites, total_sites);
     for i = 1:(total_sites)
-        C2y(i, c2y_index(i, N)) = 1;
+        C2y(i, c2y_index(i, N, l1, l2, total_sites)) = 1;
     end
     
     %% Calculate characters of symmetries
@@ -402,7 +397,11 @@ for n = 1:size(N_nums, 2)
         size(elevels_b1u, 1), size(elevels_b2u, 1), size(elevels_eu, 1)];
 
     % Find proportion of solvable states
-    solvable_prop(index_size, :) = [size(elevels_a1g, 1), size(elevels_a1u, 1), size(elevels_b2g, 1), size(elevels_b2u, 1)] / (total_sites);
+    if (l1_even == false) % l1 is odd
+        solvable_prop(index_size, :) = [size(elevels_a1g, 1), size(elevels_a1u, 1), size(elevels_b2g, 1), size(elevels_b2u, 1)] / (total_sites);
+    else % l1 is even
+        solvable_prop(index_size, :) = [size(elevels_a1g, 1), size(elevels_a1u, 1), size(elevels_a2g, 1), size(elevels_a2u, 1)] / (total_sites);
+    end
 
     %% Plot the level spacings histogram and show r values
     % Plot histograms
@@ -586,308 +585,284 @@ set(figure(index_n),'position',[0,100,3000,400])
 
 %% Plot proportions of solvable states
 figure(index_n + 1)
-plot(N_nums, sum(solvable_prop, 2), '-o')
-title('Proportion of states which are solvable')
+proportions = sum(solvable_prop, 2);
+plot(N_nums(2:end), proportions(2:end), '-o')
+if (l1_even == false) % l1 is even
+    title('Proportion of states in A1g, A1u, B2g, or B2u')
+else % l1 is even
+    title('Proportion of states in A1g, A1u, A2g, or A2u')
+end
 xlabel('N')
 yline(1/4, '--', '1/4')
 ylim([0.248, 0.253])
 ylabel('Proportion')
-
+saveas(gcf, [folderName '/solvable_proportion.jpeg']);
 
 %% Functions
-
 % Gives x coordinate of index within each face
-function x = xfacecoord(index, N)
-    if (index <= 3 * N^2) % In face 1 or 2
-        x = mod(index - 1, N) + 1;
-    elseif (index > 8 * N^2) % In face 6
-        x = mod(index - 1, N) + 1;
-    elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 2 * N) % In face 3
-        x = mod(index - 3 * N^2 - 1, 5 * N) + 1;
-    elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 3 * N) % In face 4
-        x = mod(index - 3 * N^2 - 1, 5 * N) + 1 - 2 * N;
+function x = xfacecoord(index, N, l1, l2, total_sites)
+    l3 = l1;
+    if (index <= l1 * (l2 + l3) * N^2) % In face 1 or 2
+        x = mod(index - 1, l1 * N) + 1;
+    elseif (index > total_sites - l1 * l2 * N^2) % In face 6
+        x = mod(index - 1, l1 * N) + 1;
+    elseif (mod(index - l1 * (l2 + l3) * N^2 - 1, (2 * l2 + l1) * N) + 1 <= l2 * N) % In face 3
+        x = mod(index - l1 * (l2 + l3) * N^2 - 1, (2 * l2 + l1) * N) + 1;
+    elseif (mod(index - l1 * (l2 + l3) * N^2 - 1, (2 * l2 + l1) * N) + 1 <= (l2 + l1) * N) % In face 4
+        x = mod(index - l1 * (l2 + l3) * N^2 - 1, (2 * l2 + l1) * N) + 1 - l2 * N;
     else % In face 5
-        x = mod(index - 3 * N^2 - 1, 5 * N) + 1 - 3 * N;
+        x = mod(index - l1 * (l2 + l3) * N^2 - 1, (2 * l2 + l1) * N) + 1 - (l2 + l1) * N;
     end 
 end
 
 % Gives y coordinate of index within each face
-function y = yfacecoord(index, N) 
-    if (index <= N^2) % in face 1
-        y = ceil(index / N);
-    elseif (index <= 3 * N^2) % in face 2 
-        y = ceil((index - N^2) / N);
-    elseif (index <= 8 * N^2) % in faces 3, 4, or 5
-        y = ceil((index - 3 * N^2) / (5 * N));
+function y = yfacecoord(index, N, l1, l2, total_sites) 
+    l3 = l1;
+    if (index <= l1 * l3 * N^2) % in face 1
+        y = ceil(index / (l1 * N));
+    elseif (index <= l1 * (l2 + l3) * N^2) % in face 2 
+        y = ceil((index - l1 * l3 * N^2) / (l1 * N));
+    elseif (index <= total_sites - l1 * l2 * N^2) % in faces 3, 4, or 5
+        y = ceil((index - l1 * (l2 + l3) * N^2) / ((2 * l2 + l1) * N));
     else % in face 6
-        y = ceil((index - 8 * N^2) / N);
+        y = ceil((index - l1 * (l2 + l3) * N^2 - l3 * (2 * l2 + l1) * N^2) / (l1 * N));
     end
 end
 
 % From face coordinate and face number give index
-function i = index_from_coord(x, y, face, N)
+function i = index_from_coord(x, y, face, N, l1, l2, total_sites)
+    l3 = l1;
     if (face == 1)
-        i = x + N * (y - 1);
+        i = x + (l1 * N) * (y - 1);
     elseif (face == 2)
-        i = N^2 + x + N * (y - 1);
+        i = (l1 * l3 * N^2) + x + (l1 * N) * (y - 1);
     elseif (face == 3)
-        i = 3 * N^2 + x + 5 * N * (y - 1);
+        i = l1 * (l3 + l2) * N^2 + x + (2 * l2 + l1) * N * (y - 1);
     elseif (face == 4)
-        i = 3 * N^2 + 2 * N + x + 5 * N * (y - 1);
+        i = l1 * (l3 + l2) * N^2 + l2 * N + x + (2 * l2 + l1) * N * (y - 1);
     elseif (face == 5)
-        i = 3 * N^2 + 3 * N + x + 5 * N * (y - 1);
+        i = l1 * (l3 + l2) * N^2 + (l2 + l1) * N + x + (2 * l2 + l1) * N * (y - 1);
     else 
-        i = 8 * N^2 + x + N * (y - 1);
+        i = total_sites - l1 * l2 * N^2 + x + l1 * N * (y - 1);
     end
 end
 
 % Given index on discretized cube returns new index after sigma_d symmetry
-function i = sigma_h_index(index, N)
-    if (index <= N^2) % in face 1
-        new_face = 4;
-        new_x = xfacecoord(index, N);
-        new_y = yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
-    elseif (index <= 3 * N^2) % in face 2 
-        new_face = 2;
-        new_x = xfacecoord(index, N);
-        new_y = 2 * N + 1 - yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
-    elseif (index > 8 * N^2) % in face 6
-        new_face = 6;
-        new_x = xfacecoord(index, N);
-        new_y = 2 * N + 1 - yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
-    elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 2 * N) % in face 3
-        new_face = 3;
-        new_x = 2 * N + 1 - xfacecoord(index, N);
-        new_y = yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
-    elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 3 * N) % in face 4
-        new_face = 1;
-        new_x = xfacecoord(index, N);
-        new_y = yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
-    else  % in face 5
-        new_face = 5;
-        new_x = 2 * N + 1 - facecoord(index, N);
-        new_y = yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
-    end
-end
-
-% Given index on discretized cube returns new index after sigma_d symmetry
-function i = sigma_d_index(index, N)
+function i = sigma_d_index(index, N, l1, l2, total_sites)
     if (index <= N^2) % in face 1
         new_face = 1;
-        new_x = N + 1 - yfacecoord(index, N);
-        new_y = N + 1 - xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = N + 1 - yfacecoord(index, N, l1, l2, total_sites);
+        new_y = N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (index <= 3 * N^2) % in face 2 
         new_face = 3;
-        new_x = yfacecoord(index, N);
-        new_y = xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = yfacecoord(index, N, l1, l2, total_sites);
+        new_y = xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (index > 8 * N^2) % in face 6
         new_face = 5;
-        new_x = yfacecoord(index, N);
-        new_y = xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = yfacecoord(index, N, l1, l2, total_sites);
+        new_y = xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 2 * N) % in face 3
         new_face = 2;
-        new_x = yfacecoord(index, N);
-        new_y = xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = yfacecoord(index, N, l1, l2, total_sites);
+        new_y = xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 3 * N) % in face 4
         new_face = 4;
-        new_x = yfacecoord(index, N);
-        new_y = xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = yfacecoord(index, N, l1, l2, total_sites);
+        new_y = xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     else  % in face 5
         new_face = 6;
-        new_x = yfacecoord(index, N);
-        new_y = xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = yfacecoord(index, N, l1, l2, total_sites);
+        new_y = xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     end
 end
 
 % Given index on discretized cube returns new index after C2x symmetry
-function i = c2x_index(index, N)
+function i = c2x_index(index, N, l1, l2, total_sites)
     if (index <= N^2) % in face 1
         new_face = 4;
-        new_x = N + 1 - xfacecoord(index, N);
-        new_y = N + 1 - yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        new_y = l1 * N + 1 - yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (index <= 3 * N^2) % in face 2 
         new_face = 2;
-        new_x = N + 1 - xfacecoord(index, N);
-        new_y = 2 * N + 1 - yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        new_y = l2 * N + 1 - yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (index > 8 * N^2) % in face 6
         new_face = 6;
-        new_x = N + 1 - xfacecoord(index, N);
-        new_y = 2 * N + 1 - yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        new_y = l2 * N + 1 - yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 2 * N) % in face 3
         new_face = 5;
-        new_x = xfacecoord(index, N);
-        new_y = yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = xfacecoord(index, N, l1, l2, total_sites);
+        new_y = yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 3 * N) % in face 4
         new_face = 1;
-        new_x = N + 1 - xfacecoord(index, N);
-        new_y = N + 1 - yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        new_y = l1 * N + 1 - yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     else  % in face 5
         new_face = 3;
-        new_x = xfacecoord(index, N);
-        new_y = yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = xfacecoord(index, N, l1, l2, total_sites);
+        new_y = yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     end
 end
 
 % Given index on discretized cube returns new index after sigma_v symmetry
-function i = inv_index(index, N)
+function i = inv_index(index, N, l1, l2, total_sites)
     if (index <= N^2) % in face 1
         new_face = 4;
-        new_x = N + 1 - xfacecoord(index, N);
-        new_y = yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        new_y = yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (index <= 3 * N^2) % in face 2 
         new_face = 6;
-        new_x = N + 1 - xfacecoord(index, N);
-        new_y = yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        new_y = yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (index > 8 * N^2) % in face 6
         new_face = 2;
-        new_x = N + 1 - xfacecoord(index, N);
-        new_y = yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        new_y = yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 2 * N) % in face 3
         new_face = 5;
-        new_x = xfacecoord(index, N);
-        new_y = N + 1 - yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = xfacecoord(index, N, l1, l2, total_sites);
+        new_y = l1 * N + 1 - yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 3 * N) % in face 4
         new_face = 1;
-        new_x = N + 1 - xfacecoord(index, N);
-        new_y = yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        new_y = yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     else  % in face 5
         new_face = 3;
-        new_x = xfacecoord(index, N);
-        new_y = N + 1 - yfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = xfacecoord(index, N, l1, l2, total_sites);
+        new_y = l1 * N + 1 - yfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     end
 end
 
 % Given index on discretized cube returns new index after C2y symmetry
-function i = c2y_index(index, N)
+function i = c2y_index(index, N, l1, l2, total_sites)
     if (index <= N^2) % in face 1
         new_face = 4;
-        new_x = yfacecoord(index, N);
-        new_y = N + 1 - xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = yfacecoord(index, N, l1, l2, total_sites);
+        new_y = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (index <= 3 * N^2) % in face 2 
         new_face = 5;
-        new_x = yfacecoord(index, N);
-        new_y = N + 1 - xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = yfacecoord(index, N, l1, l2, total_sites);
+        new_y = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (index > 8 * N^2) % in face 6
         new_face = 3;
-        new_x = yfacecoord(index, N);
-        new_y = N + 1 - xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = yfacecoord(index, N, l1, l2, total_sites);
+        new_y = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 2 * N) % in face 3
         new_face = 6;
-        new_x = N + 1 - yfacecoord(index, N);
-        new_y = xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = l1 * N + 1 - yfacecoord(index, N, l1, l2, total_sites);
+        new_y = xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     elseif (mod(index - 3 * N^2 - 1, 5 * N) + 1 <= 3 * N) % in face 4
         new_face = 1;
-        new_x = N + 1 - yfacecoord(index, N);
-        new_y = xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = l1 * N + 1 - yfacecoord(index, N, l1, l2, total_sites);
+        new_y = xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     else  % in face 5
         new_face = 2;
-        new_x = N + 1 - yfacecoord(index, N);
-        new_y = xfacecoord(index, N);
-        i = index_from_coord(new_x, new_y, new_face, N);
+        new_x = l1 * N + 1 - yfacecoord(index, N, l1, l2, total_sites);
+        new_y = xfacecoord(index, N, l1, l2, total_sites);
+        i = index_from_coord(new_x, new_y, new_face, N, l1, l2, total_sites);
     end
 end
 
 % Functions to find indices of H matrix
-function y = upper(x, N) 
-    if (x > 3 * N^2 - N && x <= 3 * N^2) % x in top row of lower arm 
-        y = 3 * N^2 + 2 * N + mod(x - 1, N) + 1;
-    elseif (x > 3 * N^2 && x <= (8 * N^2 - 5 * N)) % x in middle arm but not top row
-        y = x + 5 * N;
-    elseif (x > 8 * N^2 - 5 * N && x <= 8 * N^2 - 3 * N) % x top row of middle arms, left side
-        dist_from_vertex = x - (8 * N^2 - 5 * N); % distance from leftmost vertex
-        y = 10 * N^2 - dist_from_vertex * N + 1; 
-    elseif (x > 8 * N^2 - 3 * N && x <= 8 * N^2 - 2 * N) % x in top row of middle arms, center side
-        y = 8 * N^2 + mod(x - 1, N) + 1;
-    elseif (x > 8 * N^2 - 2 * N && x <= 8 * N^2) % x in top row of middle arms, right side
-        dist_from_fold = x - (8 * N^2 - 2 * N);
-        y = 8 * N^2 + dist_from_fold * N;
-    elseif (x > 8 * N^2 + N * (2 * N - 1)) % x in top row of upper arm
-        y = mod(x - 1, N) + 1;
+function y = upper(x, N, l1, l2, total_sites) 
+    l3 = l1;
+    if (x > l1 * (l2 + l3) * N^2 - l1 * N && x <= l1 * (l2 + l3) * N^2) % x in top row of lower arm 
+        y = l1 * (l2 + l3) * N^2 + l2 * N + mod(x - 1, l1 * N) + 1;
+    elseif (x > l1 * (l2 + l3) * N^2 && x <= (total_sites - l2 * l1 * N^2 - (2 * l2 + l1) * N)) % x in middle arm but not top row
+        y = x + (2 * l2 + l1) * N;
+    elseif (x > total_sites - l1 * l2 * N^2 - (2 * l2 + l1) * N && x <= total_sites - l1 * l2 * N^2 - (l2 + l1) * N) % x top row of middle arms, left side
+        dist_from_vertex = x - (total_sites - l1 * l2 * N^2 - (2 * l2 + l1) * N); % distance from leftmost vertex
+        y = total_sites - dist_from_vertex * l1 * N + 1; 
+    elseif (x > total_sites - l1 * l2 * N^2 - (2 * l2 + l1) * N && x <= total_sites - l1 * l2 * N^2 - l2 * N) % x in top row of middle arms, center side
+        y = x + (l1 + l2) * N;
+    elseif (x > total_sites - l1 * l2 * N^2 - (2 * l2 + l1) * N && x <= total_sites - l1 * l2 * N^2) % x in top row of middle arms, right side
+        dist_from_fold = x - (total_sites - l1 * l2 * N^2 - l2 * N);
+        y = total_sites - l1 * l2 * N^2 + dist_from_fold * l1 * N;
+    elseif (x > total_sites - l1 * N) % x in top row of upper arm
+        y = mod(x - 1, l1 * N) + 1;
     else % x in non-top row upper arm or non-top row lower arm
-        y = x + N;
+        y = x + l1 * N;
     end
 end
 
-function y = lower(x, N) 
-    if (x > 0 && x <= N) % x in lower arm bottom row
-        y = 10 * N^2 - N + mod(x - 1, N) + 1;
-    elseif (x > 3 * N^2 && x <= 3 * N^2 + 2 * N) % x in middle arms, bottom row, left side
-        dist_from_vertex = x - 3 * N^2;
-        y = N^2 + (dist_from_vertex - 1) * N + 1;
-    elseif (x > 3 * N^2 + 2 * N && x <= 3 * N^2 + 3 * N) % x in middle arms, bottom row, center
-        y = x - 3 * N;
-    elseif (x > 3 * N^2 + 3 * N && x <= 3 * N^2 + 5 * N) % x in middle arms, bottom row, right side
-        dist_from_fold = x - (3 * N^2 + 3 * N);
-        y = 3 * N^2 - (dist_from_fold - 1) * N ;
-    elseif (x > 3 * N^2 + 5 * N && x <= 8 * N^2) % x in middle arms, above bottom row
-        y = x - 5 * N;
-    elseif (x > 8 * N^2 && x <= 8 * N^2 + N) % x in upper arm, bottom row
-        y = x - 3 * N;
+function y = lower(x, N, l1, l2, total_sites) 
+    l3 = l1;
+    if (x > 0 && x <= l1 * N) % x in lower arm bottom row
+        y = total_sites - l1 * N + mod(x - 1, l1 * N) + 1;
+    elseif (x > l1 * (l3 + l2) * N^2 && x <= l1 * (l3 + l2) * N^2 + l2 * N) % x in middle arms, bottom row, left side
+        dist_from_vertex = x - l1 * (l3 + l2) * N^2;
+        y = l1 * l3 * N^2 + (dist_from_vertex - 1) * l1 * N + 1;
+    elseif (x > l1 * (l3 + l2) * N^2 && x <= l1 * (l3 + l2) * N^2 + (l2 + l1) * N) % x in middle arms, bottom row, center
+        y = x - (l2 + l1) * N;
+    elseif (x > l1 * (l3 + l2) * N^2 && x <= l1 * (l3 + l2) * N^2 + (2 * l2 + l1) * N) % x in middle arms, bottom row, right side
+        dist_from_fold = x - (l1 * (l3 + l2) * N^2 + (l2 + l1) * N);
+        y = l1 * (l3 + l2) * N^2 - (dist_from_fold - 1) * l1 * N ;
+    elseif (x > l1 * (l3 + l2) * N^2 + (2 * l2 + l1) * N && x <= total_sites - l1 * l2 * N^2) % x in middle arms, above bottom row
+        y = x - (2 * l2 + l1) * N;
+    elseif (x > total_sites - l1 * l2 * N^2 && x <= total_sites - l1 * l2 * N^2 + l1 * N) % x in upper arm, bottom row
+        y = x - (l1 + l2) * N;
     else % x in upper arm, above bottom row or in lower arm above bottom row
-        y = x - N;
+        y = x - l1 * N;
     end
 end
 
-function y = right(x, N)
-    if (x <= N^2 && floor(x / N) == x / N) % x in lower half of lower arm, rightmost column
-        row_from_bottom = x / N;
-        y = 8 * N^2 - (row_from_bottom - 1) * 5 * N;
-    elseif (x > N^2 && x <= 3 * N^2 && floor(x / N) == x / N) % x in upper half of lower arm, rightmost column
-        row_from_top = (3 * N^2 - x) / N + 1;
-        y = 3 * N^2 + 3 * N + row_from_top;
-    elseif (x > 3 * N^2 && x <= 8 * N^2 && floor((x - 3 * N^2)/(5 * N)) == (x - 3 * N^2)/(5 * N)) % x in middle arm, rightmost column 
-        row_from_top_2 = (8 * N^2 - x)/ (5 * N) + 1;
-        y = row_from_top_2 * N;
-    elseif (x > 8 * N^2 && floor(x / N) == x / N)  % x in upper arm, rightmost column 
-        row_from_bottom_2 = (x - 8 * N^2) / N;
-        y = 8 * N^2 - 2 * N + row_from_bottom_2;
-    else  
+function y = right(x, N, l1, l2, total_sites)
+    l3 = l1;
+    if (x <= l3 * l1 * N^2 && floor(x / (l1 * N)) == x / (l1 * N)) % x in lower half of lower arm, rightmost column
+        row_from_bottom = x / (l1 * N);
+        y = total_sites - l2 * l1 * N^2 - (row_from_bottom - 1) * (2 * l2 + l1) * N;
+    elseif (x > l1 * l3 * N^2 && x <= l1 * (l2 + l3) * N^2 && floor(x / (l1 * N)) == x / (l1 * N)) % x in upper half of lower arm, rightmost column
+        row_from_top = (l1 * (l2 + l3) * N^2 - x) / (l1 * N) + 1;
+        y = (l3 + l2) * l1 * N^2 + (l2 + l1) * N + row_from_top;
+    elseif (x > (l3 + l2) * l1 * N^2 && x <= total_sites - l2 * l1 * N^2 && floor((x - (l2 + l3) * l1 * N^2)/((2 * l2 + l1) * N)) == (x - (l2 + l3) * l1 * N^2)/((2 * l2 + l1) * N)) % x in middle arm, rightmost column 
+        row_from_top_2 = (total_sites - l2 * l1 * N^2 - x)/ ((2 * l2 + l1) * N) + 1;
+        y = row_from_top_2 * l1 * N;
+    elseif (x > total_sites - l2 * l1 * N^2 && floor(x / (l1 * N)) == x / (l1 * N))  % x in upper arm, rightmost column 
+        row_from_bottom_2 = (x - (total_sites - l2 * l1 * N^2)) / (l1 * N);
+        y = total_sites - l2 * l1 * N^2 - l2 * N + row_from_bottom_2;
+    else 
         y = x + 1;
     end
 end
 
-function y = left(x, N)
-    if (x <= N^2 && floor((x - 1) / N) == (x - 1) / N) % x in lower half of lower arm, leftmost column
-        row_from_bottom = (x - 1) / N + 1;
-        y = 8 * N^2 - (row_from_bottom) * 5 * N + 1;
-    elseif (x > N^2 && x <= 3 * N^2 && floor((x - 1) / N) == (x - 1) / N) % x in upper half of lower arm, leftmost column
-        row_from_bottom_2 = ceil(x / N) - N;
-        y = 3 * N^2 + row_from_bottom_2;
-    elseif (x > 3 * N^2 && x <= 8 * N^2 && floor((x - 1 - 3 * N^2)/(5 * N)) == (x - 1 - 3 * N^2)/(5 * N)) % x in middle arm, leftmost column 
-        row_from_top = ceil((8 * N^2 - x)/(5 * N));
-        y = N * (row_from_top - 1) + 1;
-    elseif (x > 8 * N^2 && floor((x - 1) / N) == (x - 1) / N)  % x in upper arm, leftmost column 
-        row_from_top_2 = ceil((10 * N^2 - x) / N);
-        y = 8 * N^2 - 5 * N + row_from_top_2;
+function y = left(x, N, l1, l2, total_sites)
+    l3 = l1;
+    if (x <= l3 * l1 * N^2 && (floor((x - 1) / (l1 * N)) == (x - 1) / (l1 * N))) % x in lower half of lower arm, leftmost column
+        row_from_bottom = (x - 1) / (l1 * N) + 1;
+        y = total_sites - l2 * l1 * N^2 - (row_from_bottom) * (2 * l2 + l1) * N + 1;
+    elseif (x > l3 * l1 * N^2 && x <= (l3 + l2) * l1 * N^2 && floor((x - 1) / (l1 * N)) == (x - 1) / (l1 * N)) % x in upper half of lower arm, leftmost column
+        row_from_bottom_2 = ceil(x / (l1 * N)) - l3 * N;
+        y = (l3 + l2) * l1 * N^2 + row_from_bottom_2;
+    elseif (x > (l3 + l2) * l1 * N^2 && x <= total_sites - l2 * l1 * N^2 && floor((x - 1 - (l3 + l2) * l1 * N^2)/((2 * l2 + l1) * N)) == (x - 1 - (l2 + l3) * l1 * N^2)/((2 * l2 + l1) * N)) % x in middle arm, leftmost column 
+        row_from_top = ceil((total_sites - l2 * l1 * N^2 - x)/((2 * l2 + l1) * N));
+        y = l1 * N * (row_from_top - 1) + 1;
+    elseif (x > total_sites - l2 * l1 * N^2 && floor((x - 1) / (l1 * N)) == (x - 1) / (l1 * N))  % x in upper arm, leftmost column 
+        row_from_top_2 = ceil((total_sites - x) / (l1 * N));
+        y = total_sites - l2 * l1 * N^2 - (2 * l2 + l1) * N + row_from_top_2;
     else  
         y = x - 1;
     end
