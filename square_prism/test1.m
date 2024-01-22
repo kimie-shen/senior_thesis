@@ -17,7 +17,8 @@ end
 upper_lim = 30000; % Max number of sites allowed in laptop memory
 max_N = floor(sqrt(upper_lim / (2 * (l1 * l1) + 4 * (l1 * l2))));
 fprintf(['Max N = ' num2str(max_N) '\n'])
-N_nums = primes(max_N);
+%N_nums = primes(max_N);
+N_nums = [13];
 
 % Make directory
 folderName = ['square_prism_l1=' num2str(l1) '_l2=' num2str(l2)];
@@ -53,56 +54,6 @@ for n = 1:size(N_nums, 2)
         H(i, lower(i, N, l1, l2, total_sites)) = -1/L^2;
         H(i, right(i, N, l1, l2, total_sites)) = -1/L^2;
         H(i, left(i, N, l1, l2, total_sites)) = -1/L^2;
-    end
-
-    %% Add potentials at all vertices
-    % Faces 1 and 4
-    faces = [1, 4];
-    for i = 1:2
-        index = index_from_coord(1, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(l1 * N, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(1, l1 * N, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(11 * N, l1 * N, faces(i), N, l1, l2, total_sites);
-        fprintf([num2str(index) '\n'])
-        H(index, index) = H(index, index) + corner_potential;
-    end
-
-    % Faces 2 and 6
-    faces = [2, 6];
-    for i = 1:2
-        index = index_from_coord(1, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(l1 * N, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(1, l2 * N, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(11 * N, l2 * N, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    end
-
-    % Faces 3 and 5
-    faces = [3, 5];
-    for i = 1:2
-        index = index_from_coord(1, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(l2 * N, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(1, l1 * N, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(12 * N, l1 * N, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
     end
     
     % Generate matrix for sigma_d symmetry 
@@ -279,21 +230,11 @@ for n = 1:size(N_nums, 2)
             index_a1g = index_a1g + 1;
             elevels_a1u(index_a1u, :) = energy_levels_rounded(i, :); 
             index_a1u = index_a1u + 1;
-        elseif (isequal(traces, [2, -2, -2, 0, 0])) % Accidental degeneracy A2g + A2u
-            elevels_a2g(index_a2g, :) = energy_levels_rounded(i, :);
-            index_a2g = index_a2g + 1;
-            elevels_a2u(index_a2u, :) = energy_levels_rounded(i, :);
-            index_a2u = index_a2u + 1;
-        elseif (isequal(traces, [2, 2, -2, 0, 0])) % Accidental degeneracy B1g + B1u
+        elseif (isequal(traces, [2, -2, 2, 0, 0])) % Accidental degeneracy B1g + B1u
             elevels_b1g(index_b1g, :) = energy_levels_rounded(i, :);
             index_b1g = index_b1g + 1;
             elevels_b1u(index_b1u, :) = energy_levels_rounded(i, :); 
             index_b1u = index_b1u + 1;
-        elseif (isequal(traces, [2, -2, 2, 0, 0])) % Accidental degeneracy B2g + B2u
-            elevels_b2g(index_b2g, :) = energy_levels_rounded(i, :);
-            index_b2g = index_b2g + 1;
-            elevels_b2u(index_b2u, :) = energy_levels_rounded(i, :);
-            index_b2u = index_b2u + 1;
         elseif (isequal(traces, [1, -1, -1, 1, -1])) % A2g
             elevels_a2g(index_a2g, :) = energy_levels_rounded(i, :);
             index_a2g = index_a2g + 1;

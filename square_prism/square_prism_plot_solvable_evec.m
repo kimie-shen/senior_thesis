@@ -1,5 +1,5 @@
 % Plot a solvable cube eigenstate
-n1 = 0;
+n1 = 3;
 n2 = 3;
 num_sites = 40;
 
@@ -11,7 +11,7 @@ for i = 1:(10 * num_sites^2)
     Y(i) = ycoord(i, num_sites);
 end
 
-f1 = @(x,y) cos(pi*(x*n1+y*n2))*cos(pi*(y*n1-x*n2));
+f1 = @(x,y) cos(pi*(x*n1+y*n2)) + cos(pi*(y*n1-x*n2));
 eigenvector = zeros(6 * num_sites^2, 1);
 for i = 1:(10 * num_sites^2)
     eigenvector(i) = f1(X(i), Y(i));

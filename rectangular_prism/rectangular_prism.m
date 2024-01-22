@@ -3,9 +3,9 @@ tolerance = 1e-8;  % Tolerance for degenerate energy levels
 potential = -0;
 
 % Side length ratios
-l1 = 2;
-l2 = 3;
-l3 = 4;
+l1 = 3;
+l2 = 2;
+l3 = 1;
 
 % Find max N
 upper_lim = 33000; % Max number of sites allowed in memory
@@ -13,6 +13,7 @@ max_N = floor(sqrt(upper_lim / (2 * ((l1 * l2) + (l2 * l3) + (l3 * l1)))));
 fprintf(['Max N = ' num2str(max_N) '\n'])
 
 N_nums = primes(max_N);
+N_nums = [2];
 
 %% Resume Program
 num_irreps = 8;
@@ -46,11 +47,11 @@ for n = 1:size(N_nums, 2)
     
     for i = 1:total_sites
         H(i, i) = 4/L^2;
+        fprintf([num2str(i) ' ' num2str(upper(i, N, l1, l2, l3, total_sites)) ' ' num2str(lower(i, N, l1, l2, l3, total_sites)) ' ' ...
+            num2str(right(i, N, l1, l2, l3, total_sites)) ' ' num2str(left(i, N, l1, l2, l3, total_sites)) '\n'])
         H(i, upper(i, N, l1, l2, l3, total_sites)) = -1/L^2;
         H(i, lower(i, N, l1, l2, l3, total_sites)) = -1/L^2;
         H(i, right(i, N, l1, l2, l3, total_sites)) = -1/L^2;
-        %fprintf([num2str(i) ' ' num2str(upper(i, N, l1, l2, l3, total_sites)) ' ' num2str(lower(i, N, l1, l2, l3, total_sites)) ' ' ...
-            %num2str(right(i, N, l1, l2, l3, total_sites)) ' ' num2str(left(i, N, l1, l2, l3, total_sites)) '\n'])
         H(i, left(i, N, l1, l2, l3, total_sites)) = -1/L^2;       
     end
     
@@ -276,42 +277,6 @@ for n = 1:size(N_nums, 2)
             elevels_b2u(index_b2u, :) = energy_levels_rounded(i, :); 
             index_b2u = index_b2u + 1;
             b2g_b2u = b2g_b2u + 1;
-        elseif (isequal(traces, [2, -2, 0, 0, 2])) % Accidental degeneracy B2g + B3g
-            elevels_b2g(index_b2g, :) = energy_levels_rounded(i, :);
-            index_b2g = index_b2g + 1;
-            elevels_b3g(index_b3g, :) = energy_levels_rounded(i, :); 
-            index_b3g = index_b3g + 1;
-            b2g_b3g = b2g_b3g + 1;
-        elseif (isequal(traces, [2, -2, 0, 0, -2])) % Accidental degeneracy B2u + B3u
-            elevels_b2u(index_b2u, :) = energy_levels_rounded(i, :);
-            index_b2u = index_b2u + 1;
-            elevels_b3u(index_b3u, :) = energy_levels_rounded(i, :); 
-            index_b3u = index_b3u + 1;
-            b2u_b3u = b2u_b3u + 1;
-        elseif (isequal(traces, [2, 0, 0, 2, 2])) % Accidental degeneracy Ag + B3g
-            elevels_ag(index_ag, :) = energy_levels_rounded(i, :);
-            index_ag = index_ag + 1;
-            elevels_b3g(index_b3g, :) = energy_levels_rounded(i, :); 
-            index_b3g = index_b3g + 1;
-            ag_b3g = ag_b3g + 1;
-        elseif (isequal(traces, [2, 0, 0, -2, 2])) % Accidental degeneracy B1g + B2g
-            elevels_b1g(index_b1g, :) = energy_levels_rounded(i, :);
-            index_b1g = index_b1g + 1;
-            elevels_b2g(index_b2g, :) = energy_levels_rounded(i, :); 
-            index_b2g = index_b2g + 1;
-            b1g_b2g = b1g_b2g + 1;
-        elseif (isequal(traces, [2, 0, 0, 2, -2])) % Accidental degeneracy Au + B3u
-            elevels_au(index_au, :) = energy_levels_rounded(i, :);
-            index_au = index_au + 1;
-            elevels_b3u(index_b3u, :) = energy_levels_rounded(i, :); 
-            index_b3u = index_b3u + 1;
-            au_b3u = au_b3u + 1;
-        elseif (isequal(traces, [2, 0, 0, -2, -2])) % Accidental degeneracy B1u + B2u
-            elevels_b1u(index_b1u, :) = energy_levels_rounded(i, :);
-            index_b1u = index_b1u + 1;
-            elevels_b2u(index_b2u, :) = energy_levels_rounded(i, :); 
-            index_b2u = index_b2u + 1;
-            b1u_b2u = b1u_b2u + 1;
         elseif (isequal(traces, [2, -2, -2, 2, 0])) % Accidental degeneracy B3g + B3u
             elevels_b3g(index_b3g, :) = energy_levels_rounded(i, :);
             index_b3g = index_b3g + 1;
@@ -786,7 +751,7 @@ function y = upper(x, N, l1, l2, l3, total_sites)
         dist_from_fold = x - (total_sites - l1 * l2 * N^2 - l2 * N);
         y = total_sites - l1 * l2 * N^2 + dist_from_fold * l1 * N;
     elseif (x > total_sites - l1 * N) % x in top row of upper arm
-        y = mod(x - 1, l1 * N) + 1;
+        y = mod((x - total_sites - l1 * N) - 1, l1 * N) + 1;
     else % x in non-top row upper arm or non-top row lower arm
         y = x + l1 * N;
     end
@@ -822,7 +787,7 @@ function y = right(x, N, l1, l2, l3, total_sites)
     elseif (x > (l3 + l2) * l1 * N^2 && x <= total_sites - l2 * l1 * N^2 && floor((x - (l2 + l3) * l1 * N^2)/((2 * l2 + l1) * N)) == (x - (l2 + l3) * l1 * N^2)/((2 * l2 + l1) * N)) % x in middle arm, rightmost column 
         row_from_top_2 = (total_sites - l2 * l1 * N^2 - x)/ ((2 * l2 + l1) * N) + 1;
         y = row_from_top_2 * l1 * N;
-    elseif (x > total_sites - l2 * l1 * N^2 && floor(x / (l1 * N)) == x / (l1 * N))  % x in upper arm, rightmost column 
+    elseif (x > total_sites - l2 * l1 * N^2 && floor((x - (total_sites - l2 * l1 * N^2)) / (l1 * N)) == (x - (total_sites - l2 * l1 * N^2)) / (l1 * N))  % x in upper arm, rightmost column 
         row_from_bottom_2 = (x - (total_sites - l2 * l1 * N^2)) / (l1 * N);
         y = total_sites - l2 * l1 * N^2 - l2 * N + row_from_bottom_2;
     else 
@@ -840,7 +805,7 @@ function y = left(x, N, l1, l2, l3, total_sites)
     elseif (x > (l3 + l2) * l1 * N^2 && x <= total_sites - l2 * l1 * N^2 && floor((x - 1 - (l3 + l2) * l1 * N^2)/((2 * l2 + l1) * N)) == (x - 1 - (l2 + l3) * l1 * N^2)/((2 * l2 + l1) * N)) % x in middle arm, leftmost column 
         row_from_top = ceil((total_sites - l2 * l1 * N^2 - x)/((2 * l2 + l1) * N));
         y = l1 * N * (row_from_top - 1) + 1;
-    elseif (x > total_sites - l2 * l1 * N^2 && floor((x - 1) / (l1 * N)) == (x - 1) / (l1 * N))  % x in upper arm, leftmost column 
+    elseif (x > total_sites - l2 * l1 * N^2 && floor((x - (total_sites - l2 * l1 * N^2) - 1) / (l1 * N)) == (x - (total_sites - l2 * l1 * N^2) - 1) / (l1 * N))  % x in upper arm, leftmost column 
         row_from_top_2 = ceil((total_sites - x) / (l1 * N));
         y = total_sites - l2 * l1 * N^2 - (2 * l2 + l1) * N + row_from_top_2;
     else  

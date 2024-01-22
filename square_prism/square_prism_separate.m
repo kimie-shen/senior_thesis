@@ -1,7 +1,6 @@
 %% Complete calculation for square prism (no corner potential)
 clear;
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
-corner_potential = -0;
 
 % Side length ratios
 l1 = 1;
@@ -18,6 +17,7 @@ upper_lim = 30000; % Max number of sites allowed in laptop memory
 max_N = floor(sqrt(upper_lim / (2 * (l1 * l1) + 4 * (l1 * l2))));
 fprintf(['Max N = ' num2str(max_N) '\n'])
 N_nums = primes(max_N);
+%N_nums = [11, 13];
 
 % Make directory
 folderName = ['square_prism_l1=' num2str(l1) '_l2=' num2str(l2)];
@@ -29,9 +29,15 @@ index_r = 1;
 index_size = 1;
 
 % Allocate variable space
-r_array = zeros(size(N_nums, 1), 11);
-size_array = zeros(size(N_nums, 1), 11);
-solvable_prop = zeros(size(N_nums, 1), 4);
+if (l1_even == true)
+    r_array = zeros(size(N_nums, 1), 13);
+    size_array = zeros(size(N_nums, 1), 13);
+    solvable_prop = zeros(size(N_nums, 1), 2);
+else 
+    r_array = zeros(size(N_nums, 1), 15);
+    size_array = zeros(size(N_nums, 1), 15);
+    solvable_prop = zeros(size(N_nums, 1), 4);
+end
 
 %% Start loop
 for n = 1:size(N_nums, 2)
@@ -54,56 +60,6 @@ for n = 1:size(N_nums, 2)
         H(i, right(i, N, l1, l2, total_sites)) = -1/L^2;
         H(i, left(i, N, l1, l2, total_sites)) = -1/L^2;
     end
-
-    %% Add potentials at all vertices
-    % Faces 1 and 4
-    faces = [1, 4];
-    for i = 1:2
-        index = index_from_coord(1, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(l1 * N, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(1, l1 * N, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(11 * N, l1 * N, faces(i), N, l1, l2, total_sites);
-        fprintf([num2str(index) '\n'])
-        H(index, index) = H(index, index) + corner_potential;
-    end
-
-    % Faces 2 and 6
-    faces = [2, 6];
-    for i = 1:2
-        index = index_from_coord(1, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(l1 * N, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(1, l2 * N, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(11 * N, l2 * N, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    end
-
-    % Faces 3 and 5
-    faces = [3, 5];
-    for i = 1:2
-        index = index_from_coord(1, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(l2 * N, 1, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(1, l1 * N, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    
-        index = index_from_coord(12 * N, l1 * N, faces(i), N, l1, l2, total_sites);
-        H(index, index) = H(index, index) + corner_potential;
-    end
     
     % Generate matrix for sigma_d symmetry 
     sigma_d = zeros(total_sites, total_sites);
@@ -118,10 +74,10 @@ for n = 1:size(N_nums, 2)
     
     %% Generate Symmetry Matrices
     
-    % Generate matrix for C2x
-    C2x = zeros(total_sites, total_sites);
+    % Generate matrix for C2_oo
+    C2_oo = zeros(total_sites, total_sites);
     for i = 1:(total_sites)
-        C2x(i, c2x_index(i, N, l1, l2, total_sites)) = 1;
+        C2_oo(i, c2_oo_index(i, N, l1, l2, total_sites)) = 1;
     end
 
     % Generate matrix for i
@@ -130,19 +86,19 @@ for n = 1:size(N_nums, 2)
         inv(i, inv_index(i, N, l1, l2, total_sites)) = 1;
     end
 
-    % Generate matrix for C2y
-    C2y = zeros(total_sites, total_sites);
+    % Generate matrix for C2_o
+    C2_o = zeros(total_sites, total_sites);
     for i = 1:(total_sites)
-        C2y(i, c2y_index(i, N, l1, l2, total_sites)) = 1;
+        C2_o(i, c2_o_index(i, N, l1, l2, total_sites)) = 1;
     end
     
     %% Calculate characters of symmetries
     tic;
     % Preallocate data array
     sigma_d_evals = zeros(total_sites, 1);
-    c2x_evals = zeros(total_sites, 1);
+    c2_oo_evals = zeros(total_sites, 1);
     inv_evals = zeros(total_sites, 1);
-    c2y_evals = zeros(total_sites, 1);
+    c2_o_evals = zeros(total_sites, 1);
     
     % Find inv eigenvalues
     for i = 1:(total_sites)
@@ -157,17 +113,17 @@ for n = 1:size(N_nums, 2)
     end
     fprintf('sigma_d done \n')
     
-    % Find c2x eigenvalues
+    % Find c2_oo eigenvalues
     for i = 1:(total_sites)
-        c2x_evals(i) = (eigenvectors(:, i).' * C2x * eigenvectors(:, i));
+        c2_oo_evals(i) = (eigenvectors(:, i).' * C2_oo * eigenvectors(:, i));
     end
-    fprintf('c2x done \n')
+    fprintf('c2_oo done \n')
     
-    % Find c2y eigenvalues
+    % Find c2_o eigenvalues
     for i = 1:(total_sites)
-        c2y_evals(i) = (eigenvectors(:, i).' * C2y * eigenvectors(:, i));
+        c2_o_evals(i) = (eigenvectors(:, i).' * C2_o * eigenvectors(:, i));
     end
-    fprintf('c2y done \n')
+    fprintf('c2_o done \n')
     toc;
     
     %% Analyze Degeneracies
@@ -176,32 +132,32 @@ for n = 1:size(N_nums, 2)
     [energies, id] = sort(diag(eigenvalues));
     eigenvectors = eigenvectors(:, id);
     sigma_d_evals_sorted = sigma_d_evals(id);
-    c2x_evals_sorted = c2x_evals(id);
+    c2_oo_evals_sorted = c2_oo_evals(id);
     inv_evals_sorted = inv_evals(id);
-    c2y_evals_sorted = c2y_evals(id);
+    c2_o_evals_sorted = c2_o_evals(id);
     
     % Analyze for degeneracies
     energy = energies(1);
     degeneracy = 1;
     index = 1;
     trace_sigma_d = sigma_d_evals_sorted(1);
-    trace_c2x = c2x_evals_sorted(1);
+    trace_c2_oo = c2_oo_evals_sorted(1);
     trace_inv = inv_evals_sorted(1);
-    trace_c2y = c2y_evals_sorted(1);
+    trace_c2_o = c2_o_evals_sorted(1);
     
     for i = 2:(total_sites)
         if (abs(energies(i) - energy) < tolerance) % Next energy is degenerate
             degeneracy = degeneracy + 1;
             trace_sigma_d = trace_sigma_d + sigma_d_evals_sorted(i);
-            trace_c2x = trace_c2x + c2x_evals_sorted(i);
+            trace_c2_oo = trace_c2_oo + c2_oo_evals_sorted(i);
             trace_inv = trace_inv + inv_evals_sorted(i);
-            trace_c2y = trace_c2y + c2y_evals_sorted(i);
+            trace_c2_o = trace_c2_o + c2_o_evals_sorted(i);
         else % Next energy is new
             % Record stats for previous energy level
             energy_levels(index, 1) = energy;
             energy_levels(index, 2) = degeneracy;
-            energy_levels(index, 3) = trace_c2x;
-            energy_levels(index, 4) = trace_c2y;
+            energy_levels(index, 3) = trace_c2_oo;
+            energy_levels(index, 4) = trace_c2_o;
             energy_levels(index, 5) = trace_inv;
             energy_levels(index, 6) = trace_sigma_d;
             energy_levels(index, 7) = i - 1;
@@ -210,8 +166,8 @@ for n = 1:size(N_nums, 2)
             energy = energies(i);
             degeneracy = 1;
             index = index + 1;
-            trace_c2x = c2x_evals_sorted(i);
-            trace_c2y = c2y_evals_sorted(i);
+            trace_c2_oo = c2_oo_evals_sorted(i);
+            trace_c2_o = c2_o_evals_sorted(i);
             trace_inv = inv_evals_sorted(i);
             trace_sigma_d = sigma_d_evals_sorted(i);
         end
@@ -220,8 +176,8 @@ for n = 1:size(N_nums, 2)
         if (i == total_sites)
             energy_levels(index, 1) = energy;
             energy_levels(index, 2) = degeneracy;
-            energy_levels(index, 3) = trace_c2x;
-            energy_levels(index, 4) = trace_c2y;
+            energy_levels(index, 3) = trace_c2_oo;
+            energy_levels(index, 4) = trace_c2_o;
             energy_levels(index, 5) = trace_inv;
             energy_levels(index, 6) = trace_sigma_d;
             energy_levels(index, 7) = i;
@@ -243,7 +199,17 @@ for n = 1:size(N_nums, 2)
     elevels_b1u = zeros(total_sites, 7);
     elevels_b2u = zeros(total_sites, 7);
     elevels_eu = zeros(total_sites, 7);
-    
+
+    % Allocate space for solvable elevels
+    elevels_a1g_solv = zeros(total_sites, 7);
+    elevels_a1u_solv = zeros(total_sites, 7);
+
+    if (l1_even == false)
+        elevels_b2g_solv = zeros(total_sites, 7);
+        elevels_b2u_solv = zeros(total_sites, 7);
+    end
+
+    % Set indices
     index_a1g = 1;
     index_a2g = 1;
     index_b1g = 1;
@@ -254,6 +220,14 @@ for n = 1:size(N_nums, 2)
     index_b1u = 1;
     index_b2u = 1;
     index_eu = 1;
+
+    index_a1g_solv = 1;
+    index_a1u_solv = 1;
+
+    if (l1_even == false)
+        index_b2g_solv = 1;
+        index_b2u_solv = 1;
+    end
     
     % Round the energy_levels characters
     energy_levels_rounded = zeros(size(energy_levels, 1), 7);
@@ -264,36 +238,26 @@ for n = 1:size(N_nums, 2)
     % Fill in elevel info in each irrep
     for i = 1:size(energy_levels_rounded, 1)
         trace_e = energy_levels_rounded(i, 2);
-        trace_c2x = energy_levels_rounded(i, 3);
-        trace_c2y = energy_levels_rounded(i, 4);
+        trace_c2_oo = energy_levels_rounded(i, 3);
+        trace_c2_o = energy_levels_rounded(i, 4);
         trace_inv = energy_levels_rounded(i, 5);
         trace_sigma_d = energy_levels_rounded(i, 6);
     
-        traces = [trace_e, trace_c2x, trace_c2y, trace_inv, trace_sigma_d];
+        traces = [trace_e, trace_c2_oo, trace_c2_o, trace_inv, trace_sigma_d];
     
         if (isequal(traces, [1, 1, 1, 1, 1])) % A1g
             elevels_a1g(index_a1g, :) = energy_levels_rounded(i, :);
             index_a1g = index_a1g + 1;
         elseif (isequal(traces, [2, 2, 2, 0, 0])) % Accidental degeneracy A1g + A1u
-            elevels_a1g(index_a1g, :) = energy_levels_rounded(i, :);
-            index_a1g = index_a1g + 1;
-            elevels_a1u(index_a1u, :) = energy_levels_rounded(i, :); 
-            index_a1u = index_a1u + 1;
-        elseif (isequal(traces, [2, -2, -2, 0, 0])) % Accidental degeneracy A2g + A2u
-            elevels_a2g(index_a2g, :) = energy_levels_rounded(i, :);
-            index_a2g = index_a2g + 1;
-            elevels_a2u(index_a2u, :) = energy_levels_rounded(i, :);
-            index_a2u = index_a2u + 1;
-        elseif (isequal(traces, [2, 2, -2, 0, 0])) % Accidental degeneracy B1g + B1u
-            elevels_b1g(index_b1g, :) = energy_levels_rounded(i, :);
-            index_b1g = index_b1g + 1;
-            elevels_b1u(index_b1u, :) = energy_levels_rounded(i, :); 
-            index_b1u = index_b1u + 1;
+            elevels_a1g_solv(index_a1g_solv, :) = energy_levels_rounded(i, :);
+            index_a1g_solv = index_a1g_solv + 1;
+            elevels_a1u_solv(index_a1u_solv, :) = energy_levels_rounded(i, :); 
+            index_a1u_solv = index_a1u_solv + 1;
         elseif (isequal(traces, [2, -2, 2, 0, 0])) % Accidental degeneracy B2g + B2u
-            elevels_b2g(index_b2g, :) = energy_levels_rounded(i, :);
-            index_b2g = index_b2g + 1;
-            elevels_b2u(index_b2u, :) = energy_levels_rounded(i, :);
-            index_b2u = index_b2u + 1;
+            elevels_b2g_solv(index_b2g_solv, :) = energy_levels_rounded(i, :);
+            index_b2g_solv = index_b2g_solv + 1;
+            elevels_b2u_solv(index_b2u_solv, :) = energy_levels_rounded(i, :);
+            index_b2u_solv = index_b2u_solv + 1;
         elseif (isequal(traces, [1, -1, -1, 1, -1])) % A2g
             elevels_a2g(index_a2g, :) = energy_levels_rounded(i, :);
             index_a2g = index_a2g + 1;
@@ -328,7 +292,83 @@ for n = 1:size(N_nums, 2)
                 num2str(energy_levels_rounded(i, 7)) '\n'])
         end
     end
+
+    %% Calculate energies of non-degen solvable wavefunctions
+    % Remove solvable wavefunctions from A1g (n1, n1) with n1 even
+    a1g_exp_energies_even = zeros(ceil(N / 2), 1);
+    for i = 1:ceil(N / 2)
+        n1 = (i - 1) * 2;
+        a1g_exp_energies_even(i) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n1 / N));
+    end
+
+    if (l1_even == true) % Remove solvable wavefunctions from A1g (n1, n1) with n1 odd (l1 even)
+        a1g_exp_energies_odd = zeros(ceil(N / 2), 1);
+        for i = 1:ceil(N / 2)
+            n1 = (i - 1) * 2 + 1;
+            a1g_exp_energies_odd(i) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n1 / N));
+        end
+    else % Remove solvable wavefunctions from B2g (n1, n1) with n1 odd (l1 odd)
+        b2g_exp_energies_odd = zeros(ceil(N / 2), 1);
+        for i = 1:ceil(N / 2)
+            n1 = (i - 1) * 2 + 1;
+            b2g_exp_energies_odd(i) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n1 / N));
+        end
+    end
+
+    %% Remove non-degen solvable wavefunctions
+
+    % Remove from A1g
+    for i = 1:(index_a1g - 1)
+        if (i < index_a1g)
+            for j = 1:ceil(N / 2)
+                if (abs(a1g_exp_energies_even(j) - elevels_a1g(i, 1)) < tolerance)
+                    % Add to elevel_a1g_solv
+                    elevels_a1g_solv(index_a1g_solv, :) = elevels_a1g(i, :);
+                    index_a1g_solv = index_a1g_solv + 1;
     
+                    % Delete from elevels_a1g
+                    elevels_a1g(i, :) = [];
+                    index_a1g = index_a1g - 1;
+                end
+            end 
+        end
+    end
+
+    if (l1_even == true) % Remove from A1g
+        for i = 1:(index_a1g - 1)
+            if (i < index_a1g)
+                for j = 1:ceil(N / 2)
+                    if (abs(a1g_exp_energies_odd(j) - elevels_a1g(i, 1)) < tolerance)
+                        % Add to elevel_a1g_solv
+                        elevels_a1g_solv(index_a1g_solv, :) = elevels_a1g(i, :);
+                        index_a1g_solv = index_a1g_solv + 1;
+    
+                        % Delete from elevels_a1g
+                        elevels_a1g(i, :) = [];
+                        index_a1g = index_a1g - 1;
+                    end
+                end
+            end
+        end
+    else % Remove from B2g
+        for i = 1:(index_b2g - 1)
+            if (i < index_b2g)
+                for j = 1:ceil(N / 2)
+                    if (abs(b2g_exp_energies_odd(j) - elevels_b2g(i, 1)) < tolerance)
+                        % Add to elevel_b2g_solv
+                        elevels_b2g_solv(index_b2g_solv, :) = elevels_b2g(i, :);
+                        index_b2g_solv = index_b2g_solv + 1;
+    
+                        % Delete from elevels_b2g
+                        elevels_b2g(i, :) = [];
+                        index_b2g = index_b2g - 1;
+                    end
+                end
+            end
+        end
+    end
+ 
+    %% Clean up
     % Remove extra rows of zeros
     if (index_a1g > 1)
         elevels_a1g = elevels_a1g(1:(index_a1g - 1), :);
@@ -369,8 +409,33 @@ for n = 1:size(N_nums, 2)
     if (index_eu > 1)
         elevels_eu = elevels_eu(1:(index_eu - 1), :);
     end
+
+    if (index_a1g_solv > 1)
+        elevels_a1g_solv = elevels_a1g_solv(1:(index_a1g_solv - 1), :);
+    end 
+
+    if (index_a1u_solv > 1)
+        elevels_a1u_solv = elevels_a1u_solv(1:(index_a1u_solv - 1), :);
+    end 
     
-    %% Find energy level spacings
+    if (l1_even == false)
+        if (index_b2g_solv > 1)
+            elevels_b2g_solv = elevels_b2g_solv(1:(index_b2g_solv - 1), :);
+        end
+
+        if (index_b2u_solv > 1)
+            elevels_b2u_solv = elevels_b2u_solv(1:(index_b2u_solv - 1), :);
+        end
+    end
+
+    % Resort elevels_solv for A1g, B2g
+    elevels_a1g_solv_sorted = sortrows(elevels_a1g_solv);
+
+    if (l1_even == false) 
+        elevels_b2g_solv_sorted = sortrows(elevels_b2g_solv);
+    end
+
+    %% Find energy level spacings STOPPED HERE
     % Make vector of energy level spacings
     spacings_a1g = zeros(size(elevels_a1g, 1) - 1, 1);
     spacings_a2g = zeros(size(elevels_a2g, 1) - 1, 1);
@@ -382,6 +447,14 @@ for n = 1:size(N_nums, 2)
     spacings_b1u = zeros(size(elevels_b1u, 1) - 1, 1);
     spacings_b2u = zeros(size(elevels_b2u, 1) - 1, 1);
     spacings_eu = zeros(size(elevels_eu, 1) - 1, 1);
+
+    spacings_a1g_solv = zeros(size(elevels_a1g_solv, 1) - 1, 1);
+    spacings_a1u_solv = zeros(size(elevels_a1u_solv, 1) - 1, 1);
+
+    if (l1_even == false)
+        spacings_b2g_solv = zeros(size(elevels_b2g_solv, 1) - 1, 1);
+        spacings_b2u_solv = zeros(size(elevels_b2u_solv, 1) - 1, 1);
+    end
     
     for i = 1:(size(elevels_a1g, 1) - 1)
         spacings_a1g(i) = abs(elevels_a1g(i, 1) - elevels_a1g(i+1, 1));
@@ -422,7 +495,26 @@ for n = 1:size(N_nums, 2)
     for i = 1:(size(elevels_eu, 1) - 1)
         spacings_eu(i) = abs(elevels_eu(i, 1) - elevels_eu(i+1, 1));
     end
-    
+
+    for i = 1:(size(elevels_a1g_solv_sorted, 1) - 1)
+        spacings_a1g_solv(i) = abs(elevels_a1g_solv_sorted(i, 1) - elevels_a1g_solv_sorted(i + 1, 1));
+    end
+
+    for i = 1:(size(elevels_a1u_solv, 1) - 1)
+        spacings_a1u_solv(i) = abs(elevels_a1u_solv(i, 1) - elevels_a1u_solv(i+1, 1));
+    end
+
+    if (l1_even == false)
+        for i = 1:(size(elevels_b2g_solv_sorted, 1) - 1)
+            spacings_b2g_solv(i) = abs(elevels_b2g_solv_sorted(i, 1) - elevels_b2g_solv_sorted(i+1, 1));
+        end
+        
+        for i = 1:(size(elevels_b2u_solv, 1) - 1)
+            spacings_b2u_solv(i) = abs(elevels_b2u_solv(i, 1) - elevels_b2u_solv(i+1, 1));
+        end
+    end
+
+         
     % Compute level spacing ratios
     r_a1g = LSR(spacings_a1g);
     r_a2g = LSR(spacings_a2g);
@@ -435,19 +527,39 @@ for n = 1:size(N_nums, 2)
     r_b2u = LSR(spacings_b2u);
     r_eu = LSR(spacings_eu);
 
+    r_a1g_solv = LSR(spacings_a1g_solv);
+    r_a1u_solv = LSR(spacings_a1u_solv);
+    
+    if (l1_even == false)
+        r_b2g_solv = LSR(spacings_b2g_solv);
+        r_b2u_solv = LSR(spacings_b2u_solv);
+    end
+
     % Fill in r array values
-    r_array(index_r, :) = [N, r_a1g, r_a2g, r_b1g, r_b2g, r_eg, r_a1u, r_a2u, r_b1u, r_b2u, r_eu];
-   
+    if (l1_even == true)
+        r_array(index_r, :) = [N, r_a1g, r_a2g, r_b1g, r_b2g, r_eg, r_a1u, r_a2u, r_b1u, r_b2u, r_eu, r_a1g_solv, r_a1u_solv];
+    else
+        r_array(index_r, :) = [N, r_a1g, r_a2g, r_b1g, r_b2g, r_eg, r_a1u, r_a2u, r_b1u, r_b2u, r_eu, r_a1g_solv, r_a1u_solv, r_b2g_solv, r_b2u_solv];
+    end
+
     % Fill in size of irreps
-    size_array(index_size, :) = [N, size(elevels_a1g, 1), size(elevels_a2g, 1), size(elevels_b1g, 1), ...
-        size(elevels_b2g, 1), size(elevels_eg, 1), size(elevels_a1u, 1), size(elevels_a2u, 1), ...
-        size(elevels_b1u, 1), size(elevels_b2u, 1), size(elevels_eu, 1)];
+    if (l1_even == true)
+        size_array(index_size, :) = [N, size(elevels_a1g, 1), size(elevels_a2g, 1), size(elevels_b1g, 1), ...
+            size(elevels_b2g, 1), size(elevels_eg, 1), size(elevels_a1u, 1), size(elevels_a2u, 1), ...
+            size(elevels_b1u, 1), size(elevels_b2u, 1), size(elevels_eu, 1), size(elevels_a1g_solv, 1), ...
+            size(elevels_a1u_solv, 1)];
+    else
+        size_array(index_size, :) = [N, size(elevels_a1g, 1), size(elevels_a2g, 1), size(elevels_b1g, 1), ...
+            size(elevels_b2g, 1), size(elevels_eg, 1), size(elevels_a1u, 1), size(elevels_a2u, 1), ...
+            size(elevels_b1u, 1), size(elevels_b2u, 1), size(elevels_eu, 1), size(elevels_a1g_solv, 1), ...
+            size(elevels_a1u_solv, 1), size(elevels_b2g_solv, 1), size(elevels_b2u_solv, 1)];
+    end
 
     % Find proportion of solvable states
     if (l1_even == false) % l1 is odd
-        solvable_prop(index_size, :) = [size(elevels_a1g, 1), size(elevels_a1u, 1), size(elevels_b2g, 1), size(elevels_b2u, 1)] / (total_sites);
+        solvable_prop(index_size, :) = [size(elevels_a1g_solv, 1), size(elevels_a1u_solv, 1), size(elevels_b2g_solv, 1), size(elevels_b2u_solv, 1)] / total_sites;
     else % l1 is even
-        solvable_prop(index_size, :) = [size(elevels_a1g, 1), size(elevels_a1u, 1), size(elevels_a2g, 1), size(elevels_a2u, 1)] / (total_sites);
+        solvable_prop(index_size, :) = [size(elevels_a1g_solv, 1), size(elevels_a1u_solv, 1)] / total_sites;
     end
 
     %% Plot the level spacings histogram and show r values
@@ -528,11 +640,70 @@ for n = 1:size(N_nums, 2)
     
     set(figure(index_n),'position',[0,100,3000,400])
     saveas(gcf, [folderName '/N=' num2str(N) '_elevel_hist.jpeg']);
+
+    % Plot histogram of solvable wavefunctions
+
+    if (l1_even == true)
+        figure(index_n + 1)
+        tiledlayout(1,2)
+        bin_factor = 5;
     
+        nexttile
+        histogram(spacings_a1g_solv, ceil(size(elevels_a1g_solv, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('A1g Solvable')
+        subtitle(['r = ' num2str(r_a1g_solv) '; total = ' num2str(size(elevels_a1g_solv, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    
+        nexttile
+        histogram(spacings_a1u_solv, ceil(size(elevels_a1u_solv, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('A1u Solvable')
+        subtitle(['r = ' num2str(r_a1u_solv) '; total = ' num2str(size(elevels_a1u_solv, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    
+    else 
+        figure(index_n + 1)
+        tiledlayout(2,2)
+        bin_factor = 5;
+
+        nexttile
+        histogram(spacings_a1g_solv, ceil(size(elevels_a1g_solv, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('A1g Solvable')
+        subtitle(['r = ' num2str(r_a1g_solv) '; total = ' num2str(size(elevels_a1g_solv, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    
+        nexttile
+        histogram(spacings_a1u_solv, ceil(size(elevels_a1u_solv, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('A1u Solvable')
+        subtitle(['r = ' num2str(r_a1u_solv) '; total = ' num2str(size(elevels_a1u_solv, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+
+        nexttile
+        histogram(spacings_b2g_solv, ceil(size(elevels_b2g_solv, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('B2g Solvable')
+        subtitle(['r = ' num2str(r_b2g_solv) '; total = ' num2str(size(elevels_b2g_solv, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    
+        nexttile
+        histogram(spacings_b2u_solv, ceil(size(elevels_b2u_solv, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('B2u Solvable')
+        subtitle(['r = ' num2str(r_b2u_solv) '; total = ' num2str(size(elevels_b2u_solv, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    end
+
+    set(figure(index_n + 1),'position',[0, 100, 700, 400])
+    saveas(gcf, [folderName '/N=' num2str(N) '_elevel_hist_solv.jpeg']);
+
     % Increment indices
-    index_n = index_n + 1;
+    index_n = index_n + 2;
     index_size = index_size + 1;
     index_r = index_r + 1;
+    
 end
 
 %% Plot r as a function of size in each irrep
@@ -545,7 +716,7 @@ title('A1g')
 xlabel('N')
 ylabel('r')
 hold on 
-yline(0.39, '--', 'r = 0.39')
+yline(0.53, '--', 'r = 0.53')
 ylim([0.3, 1])
 
 nexttile
@@ -572,7 +743,7 @@ title('B2g')
 xlabel('N')
 ylabel('r')
 hold on 
-yline(0.39, '--', 'r = 0.39')
+yline(0.53, '--', 'r = 0.53')
 ylim([0.3, 1])
 
 nexttile
@@ -590,7 +761,7 @@ title('A1u')
 xlabel('N')
 ylabel('r')
 hold on 
-yline(0.39, '--', 'r = 0.39')
+yline(0.53, '--', 'r = 0.53')
 ylim([0.3, 1])
 
 nexttile
@@ -617,7 +788,7 @@ title('B2u')
 xlabel('N')
 ylabel('r')
 hold on 
-yline(0.39, '--', 'r = 0.39')
+yline(0.53, '--', 'r = 0.53')
 ylim([0.3, 1])
 
 nexttile
@@ -632,18 +803,82 @@ ylim([0.3, 1])
 set(figure(index_n),'position',[0,100,3000,400])
 saveas(gcf, [folderName '/LSR_plot.jpeg']);
 
+% Plot r values for solvable wavefunctions
+if (l1_even == true)
+    figure(index_n + 1)
+    tiledlayout(1,2)
+
+    nexttile
+    plot(N_nums.', r_array(:, 12).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    title('A1g')
+    xlabel('N')
+    ylabel('r')
+    hold on 
+    yline(0.39, '--', 'r = 0.39')
+    ylim([0.3, 1])
+
+    nexttile
+    plot(N_nums, r_array(:, 13).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    title('A1u')
+    xlabel('N')
+    ylabel('r')
+    hold on 
+    yline(0.39, '--', 'r = 0.39')
+    ylim([0.3, 1])
+else
+    figure(index_n + 1)
+    tiledlayout(2,2)
+
+    nexttile
+    plot(N_nums.', r_array(:, 12).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    title('A1g')
+    xlabel('N')
+    ylabel('r')
+    hold on 
+    yline(0.39, '--', 'r = 0.39')
+    ylim([0.3, 1])
+
+    nexttile
+    plot(N_nums, r_array(:, 13).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    title('A1u')
+    xlabel('N')
+    ylabel('r')
+    hold on 
+    yline(0.39, '--', 'r = 0.39')
+    ylim([0.3, 1])
+
+    nexttile
+    plot(N_nums, r_array(:, 14).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    title('B1g Solvable')
+    xlabel('N')
+    ylabel('r')
+    hold on 
+    yline(0.39, '--', 'r = 0.39')
+    ylim([0.3, 1])
+    
+    nexttile
+    plot(N_nums, r_array(:, 15).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    title('B1u Solvable')
+    xlabel('N')
+    ylabel('r')
+    hold on 
+    yline(0.39, '--', 'r = 0.39')
+    ylim([0.3, 1])
+end
+
+
 %% Plot proportions of solvable states
-figure(index_n + 1)
+figure(index_n + 2)
 proportions = sum(solvable_prop, 2);
 plot(N_nums(2:end), proportions(2:end), '-o')
 if (l1_even == false) % l1 is even
-    title('Proportion of states in A1g, A1u, B2g, or B2u')
+    title('Proportion of solvable states in A1g or A1u')
 else % l1 is even
-    title('Proportion of states in A1g, A1u, A2g, or A2u')
+    title('Proportion of solvable states in A1g, A1u, B2g, or B2u')
 end
 xlabel('N')
-yline(1/4, '--', '1/4')
-ylim([0.248, 0.253])
+yline(1/20, '--', '1/20')
+ylim([0.0, 0.1])
 ylabel('Proportion')
 saveas(gcf, [folderName '/solvable_proportion.jpeg']);
 
@@ -732,7 +967,7 @@ function i = sigma_d_index(index, N, l1, l2, total_sites)
 end
 
 % Given index on discretized cube returns new index after C2x symmetry
-function i = c2x_index(index, N, l1, l2, total_sites)
+function i = c2_oo_index(index, N, l1, l2, total_sites)
     if (index <= N^2) % in face 1
         new_face = 4;
         new_x = l1 * N + 1 - xfacecoord(index, N, l1, l2, total_sites);
@@ -802,7 +1037,7 @@ function i = inv_index(index, N, l1, l2, total_sites)
 end
 
 % Given index on discretized cube returns new index after C2y symmetry
-function i = c2y_index(index, N, l1, l2, total_sites)
+function i = c2_o_index(index, N, l1, l2, total_sites)
     if (index <= N^2) % in face 1
         new_face = 4;
         new_x = yfacecoord(index, N, l1, l2, total_sites);

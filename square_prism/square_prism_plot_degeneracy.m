@@ -1,8 +1,8 @@
-n1 = 2;
-n2 = 4;
+n1 = 3;
+n2 = 3;
 
-f1 = @(x, y) cos(pi*(x*n1+y*n2)).*cos(pi*(y*n1-x*n2))...
-    - cos(pi*(x*-n1+y*n2)).*cos(pi*(y*-n1-x*n2));
+f1 = @(x, y) cos(pi*(x*n1+y*n2)) + cos(pi*(y*n1-x*n2))...
+    + cos(pi*(x*-n1+y*n2)) + cos(pi*(y*-n1-x*n2));
 
 cn = 100;  % number of colors
 cm = colormap(parula(cn));

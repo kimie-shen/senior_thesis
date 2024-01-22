@@ -195,7 +195,6 @@ for n = 1:size(N_nums, 2)
     trace_c2z = c2z_evals_sorted(1);
     trace_inv = inv_evals_sorted(1);
 
-    
     for i = 2:(total_sites)
         if (abs(energies(i) - energy) < tolerance) % Next energy is degenerate
             degeneracy = degeneracy + 1;
@@ -296,6 +295,26 @@ for n = 1:size(N_nums, 2)
             elevels_b2u(index_b2u, :) = energy_levels_rounded(i, :);
             index_b2u = index_b2u + 1;
         elseif (isequal(traces, [1, -1, -1, +1, -1])) % B3u
+            elevels_b3u(index_b3u, :) = energy_levels_rounded(i, :);
+            index_b3u = index_b3u + 1;
+        elseif (isequal(traces, [2, 2, 2, 2, 0])) % Accidental degeneracy Ag + Au
+            elevels_ag(index_ag, :) = energy_levels_rounded(i, :);
+            index_ag = index_ag + 1;
+            elevels_au(index_au, :) = energy_levels_rounded(i, :);
+            index_au = index_au + 1;
+        elseif (isequal(traces, [2, 2, -2, -2, 0])) % Accidental degeneracy B1g + B1u
+            elevels_b1g(index_b1g, :) = energy_levels_rounded(i, :);
+            index_b1g = index_b1g + 1;
+            elevels_b1u(index_b1u, :) = energy_levels_rounded(i, :);
+            index_b1u = index_b1u + 1;
+        elseif (isequal(traces, [2, -2, 2, -2, 0])) % Accidental degeneracy B2g + B2u
+            elevels_b2g(index_b2g, :) = energy_levels_rounded(i, :);
+            index_b2g = index_b2g + 1;
+            elevels_b2u(index_b2u, :) = energy_levels_rounded(i, :);
+            index_b2u = index_b2u + 1;
+        elseif (isequal(traces, [2, -2, -2, 2, 0])) % Accidental degeneracy B3g + B3u
+            elevels_b3g(index_b3g, :) = energy_levels_rounded(i, :);
+            index_b3g = index_b3g + 1;
             elevels_b3u(index_b3u, :) = energy_levels_rounded(i, :);
             index_b3u = index_b3u + 1;
         else 
@@ -562,10 +581,7 @@ ylim([0.248, 0.253])
 ylabel('Proportion')
 saveas(gcf, [folderName '/solvable_proportion.jpeg']);
 
-
-
 %% Functions
-
 % Gives x coordinate of index within each face
 function x = xfacecoord(index, N, l1, l2, l3, total_sites)
     if (index <= l1 * (l2 + l3) * N^2) % In face 1 or 2
