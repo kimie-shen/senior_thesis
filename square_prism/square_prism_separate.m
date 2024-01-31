@@ -3,8 +3,8 @@ clear;
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
 
 % Side length ratios
-l1 = 1;
-l2 = 2;
+l1 = 2;
+l2 = 1;
 
 % Is l1 even or not?
 l1_even = false;
@@ -294,20 +294,20 @@ for n = 1:size(N_nums, 2)
     end
 
     %% Calculate energies of non-degen solvable wavefunctions
-    % Remove solvable wavefunctions from A1g (n1, n1) with n1 even
+    % Calculate solvable wavefunctions energies from A1g (n1, n1) with n1 even
     a1g_exp_energies_even = zeros(ceil(N / 2), 1);
     for i = 1:ceil(N / 2)
         n1 = (i - 1) * 2;
         a1g_exp_energies_even(i) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n1 / N));
     end
 
-    if (l1_even == true) % Remove solvable wavefunctions from A1g (n1, n1) with n1 odd (l1 even)
+    if (l1_even == true) % Calculate solvable wavefunctions energies from A1g (n1, n1) with n1 odd (l1 even)
         a1g_exp_energies_odd = zeros(ceil(N / 2), 1);
         for i = 1:ceil(N / 2)
             n1 = (i - 1) * 2 + 1;
             a1g_exp_energies_odd(i) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n1 / N));
         end
-    else % Remove solvable wavefunctions from B2g (n1, n1) with n1 odd (l1 odd)
+    else % Calculate solvable wavefunctions energies from B2g (n1, n1) with n1 odd (l1 odd)
         b2g_exp_energies_odd = zeros(ceil(N / 2), 1);
         for i = 1:ceil(N / 2)
             n1 = (i - 1) * 2 + 1;
@@ -565,7 +565,7 @@ for n = 1:size(N_nums, 2)
     %% Plot the level spacings histogram and show r values
     % Plot histograms
     figure(index_n)
-    tiledlayout(2,5)
+    tiledlayout(2,5,'TileSpacing', 'tight','Padding','Tight')
     bin_factor = 5;
     
     nexttile
@@ -645,7 +645,7 @@ for n = 1:size(N_nums, 2)
 
     if (l1_even == true)
         figure(index_n + 1)
-        tiledlayout(1,2)
+        tiledlayout(1,2, 'TileSpacing', 'tight','Padding','Tight')
         bin_factor = 5;
     
         nexttile
@@ -664,7 +664,7 @@ for n = 1:size(N_nums, 2)
     
     else 
         figure(index_n + 1)
-        tiledlayout(2,2)
+        tiledlayout(2,2, 'TileSpacing', 'tight','Padding','Tight')
         bin_factor = 5;
 
         nexttile
@@ -708,97 +708,101 @@ end
 
 %% Plot r as a function of size in each irrep
 figure(index_n)
-tiledlayout(2,5)
+tiledlayout(2,5,'TileSpacing', 'tight','Padding','Tight')
+ylow_unsolv = 0.45;
+yhigh_unsolv = 0.7;
+ylow_solv = 0.35;
+yhigh_solv = 0.6;
 
 nexttile
-plot(N_nums.', r_array(:, 2).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums.', r_array(:, 2).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('A1g')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 1])
+ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 3).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 3).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('A2g')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 1])
+ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 4).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 4).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('B1g')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 1])
+ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 5).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 5).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('B2g')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 1])
+ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 6).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 6).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('Eg')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 1])
+ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 7).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 7).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('A1u')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 1])
+ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 8).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 8).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('A2u')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 1])
+ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 9).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 9).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('B1u')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 1])
+ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 10).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 10).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('B2u')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 1])
+ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 11).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 11).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('Eu')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 1])
+ylim([ylow_unsolv, yhigh_unsolv])
 
 set(figure(index_n),'position',[0,100,3000,400])
 saveas(gcf, [folderName '/LSR_plot.jpeg']);
@@ -806,81 +810,149 @@ saveas(gcf, [folderName '/LSR_plot.jpeg']);
 % Plot r values for solvable wavefunctions
 if (l1_even == true)
     figure(index_n + 1)
-    tiledlayout(1,2)
+    tiledlayout(1, 2, 'TileSpacing', 'tight','Padding','Tight')
 
     nexttile
-    plot(N_nums.', r_array(:, 12).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    plot(N_nums.', r_array(:, 12).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
     title('A1g')
     xlabel('N')
     ylabel('r')
     hold on 
     yline(0.39, '--', 'r = 0.39')
-    ylim([0.3, 1])
+    ylim([ylow_solv, yhigh_solv])
 
     nexttile
-    plot(N_nums, r_array(:, 13).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    plot(N_nums, r_array(:, 13).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
     title('A1u')
     xlabel('N')
     ylabel('r')
     hold on 
     yline(0.39, '--', 'r = 0.39')
-    ylim([0.3, 1])
+    ylim([ylow_solv, yhigh_solv])
 else
     figure(index_n + 1)
-    tiledlayout(2,2)
+    tiledlayout(2, 2,'TileSpacing', 'tight','Padding','Tight')
 
     nexttile
-    plot(N_nums.', r_array(:, 12).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    plot(N_nums.', r_array(:, 12).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
     title('A1g')
     xlabel('N')
     ylabel('r')
     hold on 
     yline(0.39, '--', 'r = 0.39')
-    ylim([0.3, 1])
+    ylim([ylow_solv, yhigh_solv])
 
     nexttile
-    plot(N_nums, r_array(:, 13).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    plot(N_nums, r_array(:, 13).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
     title('A1u')
     xlabel('N')
     ylabel('r')
     hold on 
     yline(0.39, '--', 'r = 0.39')
-    ylim([0.3, 1])
+    ylim([ylow_solv, yhigh_solv])
 
     nexttile
-    plot(N_nums, r_array(:, 14).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
-    title('B1g Solvable')
+    plot(N_nums, r_array(:, 14).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    title('B2g')
     xlabel('N')
     ylabel('r')
     hold on 
     yline(0.39, '--', 'r = 0.39')
-    ylim([0.3, 1])
+    ylim([ylow_solv, yhigh_solv])
     
     nexttile
-    plot(N_nums, r_array(:, 15).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])
-    title('B1u Solvable')
+    plot(N_nums, r_array(:, 15).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    title('B2u')
     xlabel('N')
     ylabel('r')
     hold on 
     yline(0.39, '--', 'r = 0.39')
-    ylim([0.3, 1])
+    ylim([ylow_solv, yhigh_solv])
 end
+set(figure(index_n + 1),'position',[0,100,1000,400])
+saveas(gcf, [folderName '/LSR_plot_solv.jpeg']);
 
+%% Plot r values together
+figure(index_n + 2)
+tiledlayout(1,2,'TileSpacing', 'tight','Padding','Tight')
+bin_factor = 5;
+    
+nexttile
+plot(N_nums.', r_array(:, 2).', 'Linestyle','-','Marker','.')
+hold on
+plot(N_nums.', r_array(:, 3).', 'Linestyle','-','Marker','.')
+plot(N_nums.', r_array(:, 4).', 'Linestyle','-','Marker','.')
+plot(N_nums.', r_array(:, 5).', 'Linestyle','-','Marker','.')
+plot(N_nums.', r_array(:, 6).', 'Linestyle','-','Marker','.')
+plot(N_nums.', r_array(:, 7).', 'Linestyle','-','Marker','.')
+plot(N_nums.', r_array(:, 8).', 'Linestyle','-','Marker','.')
+plot(N_nums.', r_array(:, 9).', 'Linestyle','-','Marker','.')
+plot(N_nums.', r_array(:, 10).', 'Linestyle','-','Marker','.')
+plot(N_nums.', r_array(:, 11).', 'Linestyle','-','Marker','.')
+legend('A1g','A2g','B1g','B2g','Eg','A1u','A2u','B1u','B2u','Eu')
+title('Unsolvable wavefunctions')
+xlabel('N')
+ylabel('r')
+hold on 
+yline(0.53, '--', 'r = 0.53', 'HandleVisibility','off')
+ylim([ylow_unsolv, yhigh_unsolv])
+hold off
+
+nexttile
+plot(N_nums, r_array(:, 12).', 'Linestyle','-','Marker','.')
+hold on
+plot(N_nums.', r_array(:, 13).', 'Linestyle','-','Marker','.')
+if (l1_even == false)
+    plot(N_nums.', r_array(:, 14).', 'Linestyle','-','Marker','.')
+    plot(N_nums.', r_array(:, 15).', 'Linestyle','-','Marker','.')
+    legend('A1g', 'A1u', 'B2g', 'B2u')
+else
+    legend('A1g', 'A1u')
+end
+title('Solvable wavefunctions')
+xlabel('N')
+ylabel('r')
+hold on 
+yline(0.39, '--', 'r = 0.39', 'HandleVisibility','off')
+ylim([ylow_solv, yhigh_solv])
+set(figure(index_n + 2),'position',[0,100,1000,400])
+saveas(gcf, [folderName '/LSR_plot_combined.jpeg']);
 
 %% Plot proportions of solvable states
-figure(index_n + 2)
+figure(index_n + 3)
 proportions = sum(solvable_prop, 2);
-plot(N_nums(2:end), proportions(2:end), '-o')
-if (l1_even == false) % l1 is even
-    title('Proportion of solvable states in A1g or A1u')
-else % l1 is even
-    title('Proportion of solvable states in A1g, A1u, B2g, or B2u')
-end
+plot(N_nums(3:end), proportions(3:end), 'Linestyle','-','Marker','.')
+title('Proportion of solvable states')
 xlabel('N')
-yline(1/20, '--', '1/20')
-ylim([0.0, 0.1])
+prop_solvable = 1 / (4 * (l1 * l1 + 2 * l1 * l2));
+prop_range = 0.05;
+yline(prop_solvable, '--', ['1/' num2str(4 * (l1 * l1 + 2 * l1 * l2))])
+ylim([prop_solvable - prop_range, prop_solvable + prop_range])
 ylabel('Proportion')
+set(figure(index_n + 3),'position',[0,100,600,400])
 saveas(gcf, [folderName '/solvable_proportion.jpeg']);
+
+%% Save variables
+save([folderName '/r_array.mat'],'r_array','-v7.3')
+save([folderName '/size_array.mat'],'size_array','-v7.3')
+save([folderName '/elevels_a1g.mat'],'elevels_a1g','-v7.3')
+save([folderName '/elevels_a1g_solv_sorted.mat'],'elevels_a1g_solv_sorted','-v7.3')
+save([folderName '/elevels_a1u.mat'],'elevels_a1u','-v7.3')
+save([folderName '/elevels_a1u_solv.mat'],'elevels_a1u_solv','-v7.3')
+save([folderName '/elevels_a2g.mat'],'elevels_a2g','-v7.3')
+save([folderName '/elevels_a2u.mat'],'elevels_a2u','-v7.3')
+save([folderName '/elevels_b1g.mat'],'elevels_b1g','-v7.3')
+save([folderName '/elevels_b1u.mat'],'elevels_b1u','-v7.3')
+save([folderName '/elevels_b2g.mat'],'elevels_b2g','-v7.3')
+save([folderName '/elevels_b2u.mat'],'elevels_b2u','-v7.3')
+save([folderName '/elevels_eg.mat'],'elevels_eg','-v7.3')
+save([folderName '/elevels_eu.mat'],'elevels_eu','-v7.3')
+
+if (l1_even == false)
+    save([folderName 'elevels_b2g_solv_sorted.mat'],'elevels_b2g_solv_sorted','-v7.3')
+    save([folderName 'elevels_b2u_solv.mat'],'elevels_b2u_solv','-v7.3')
+end
+
 
 %% Functions
 % Gives x coordinate of index within each face

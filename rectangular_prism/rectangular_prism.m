@@ -47,8 +47,8 @@ for n = 1:size(N_nums, 2)
     
     for i = 1:total_sites
         H(i, i) = 4/L^2;
-        fprintf([num2str(i) ' ' num2str(upper(i, N, l1, l2, l3, total_sites)) ' ' num2str(lower(i, N, l1, l2, l3, total_sites)) ' ' ...
-            num2str(right(i, N, l1, l2, l3, total_sites)) ' ' num2str(left(i, N, l1, l2, l3, total_sites)) '\n'])
+        %fprintf([num2str(i) ' ' num2str(upper(i, N, l1, l2, l3, total_sites)) ' ' num2str(lower(i, N, l1, l2, l3, total_sites)) ' ' ...
+            %num2str(right(i, N, l1, l2, l3, total_sites)) ' ' num2str(left(i, N, l1, l2, l3, total_sites)) '\n'])
         H(i, upper(i, N, l1, l2, l3, total_sites)) = -1/L^2;
         H(i, lower(i, N, l1, l2, l3, total_sites)) = -1/L^2;
         H(i, right(i, N, l1, l2, l3, total_sites)) = -1/L^2;
@@ -80,7 +80,7 @@ for n = 1:size(N_nums, 2)
     C2z = zeros(total_sites, total_sites);
     for i = 1:(total_sites)
         C2z(i, c2z_index(i, N, l1, l2, l3, total_sites)) = 1;
-        %fprintf([num2str(i) ' ' num2str(c2y_index(i, N, l1, l2, l3, total_sites)) '\n'])
+        %fprintf([num2str(i) ' ' num2str(c2z_index(i, N, l1, l2, l3, total_sites)) '\n'])
     end
 
     % Generate matrix for i
@@ -556,7 +556,7 @@ function x = xfacecoord(index, N, l1, l2, l3, total_sites)
     if (index <= l1 * (l2 + l3) * N^2) % In face 1 or 2
         x = mod(index - 1, l1 * N) + 1;
     elseif (index > total_sites - l1 * l2 * N^2) % In face 6
-        x = mod(index - 1, l1 * N) + 1;
+        x = mod(index - (total_sites - l1 * l2 * N^2) - 1, l1 * N) + 1;
     elseif (mod(index - l1 * (l2 + l3) * N^2 - 1, (2 * l2 + l1) * N) + 1 <= l2 * N) % In face 3
         x = mod(index - l1 * (l2 + l3) * N^2 - 1, (2 * l2 + l1) * N) + 1;
     elseif (mod(index - l1 * (l2 + l3) * N^2 - 1, (2 * l2 + l1) * N) + 1 <= (l2 + l1) * N) % In face 4
@@ -717,6 +717,7 @@ function i = c2z_index(index, N, l1, l2, l3, total_sites)
         new_face = 2;
         new_x = xfacecoord(index, N, l1, l2, l3, total_sites);
         new_y = yfacecoord(index, N, l1, l2, l3, total_sites);
+        %fprintf(['new_x = ' num2str(new_x) ' new_y = ' num2str(new_y) '\n'])
         i = index_from_coord(new_x, new_y, new_face, N, l1, l2, l3, total_sites);
     elseif (mod(index - l1 * (l3 + l2) * N^2 - 1, (2 * l2 + l1) * N) + 1 <= l2 * N) % in face 3
         new_face = 3;
