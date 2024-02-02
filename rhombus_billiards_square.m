@@ -1,24 +1,47 @@
 %% Simulation of billiards on rhombus
 % Initial conditions
-x_0 = 1;
-y_0 = 0;
-theta = 2 * pi / 3;
-dtheta = 0.01;
-t_total = 10;
-color_list_1 = [0.635, 0.078, 0.184; 0.850, 0.325, 0.098; 0.929, 0.694, 0.125]; % red, orange, yellow
-color_list_2 = [0.466, 0.674, 0.188; 0.000, 0.447, 0.741; 0.494, 0.184, 0.556]; % green, blue, purple
-half_num_lines = 3;
+x_1 = 0;
+y_1 = 0;
+theta_1 = pi/6 + 0.01;
 
-% Length
-for i = 1:half_num_lines
-    billiards(x_0, y_0, theta + dtheta * (i / half_num_lines), t_total, color_list_1(half_num_lines + 1 - i, :))
-    hold on
-    billiards(x_0, y_0, theta - dtheta * (i / half_num_lines), t_total, color_list_2(i, :))
-end
-hold off
+x_2 = 0.01;
+y_2 = 0;
+theta_2 = pi/6 + 0.01;
+
+x_3 = 0.015;
+y_3 = 0.005 * sqrt(3);
+theta_3 = pi/6 - 0.01;
+
+x_4 = 0.005;
+y_4 = 0.005 * sqrt(3);
+theta_4 = pi/6 - 0.01;
+
+t_total = 100000;
+
+end_square = zeros(4, 2);
+
+[end_square(1, 1), end_square(1, 2)] = billiards(x_1, y_1, theta_1, t_total);
+[end_square(2, 1), end_square(2, 2)] = billiards(x_2, y_2, theta_2, t_total);
+[end_square(3, 1), end_square(3, 2)] = billiards(x_3, y_3, theta_3, t_total);
+[end_square(4, 1), end_square(4, 2)] = billiards(x_4, y_4, theta_4, t_total);
+
+%% Plot
+figure(1)
+fill(end_square(:, 1), end_square(:, 2), 'b')
+xlim([0, 3/2])
+ylim([0, sqrt(3)/2])
+daspect([1 1 1])
+hold on
+    
+% Plot boundary
+plot([0,1], [0,0], 'LineWidth', 1, 'Color', 'black')
+plot([1, 3/2], [0, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
+plot([0, 1/2], [0, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
+plot([1/2, 3/2], [sqrt(3) / 2, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
 
 
-function billiards(x_0, y_0, theta, t_total, color_rgb)
+%% Functions
+function [x_end, y_end] = billiards(x_0, y_0, theta, t_total)
     % Set variables
     x = [x_0];
     y = [y_0];
@@ -78,22 +101,9 @@ function billiards(x_0, y_0, theta, t_total, color_rgb)
     t_remaining = t_total - t_penultimate;
     
     % Compute end location
-    x(hits + 1) = x(hits) + t_remaining * cos(theta_penultimate);
-    y(hits + 1) = y(hits) + t_remaining * sin(theta_penultimate);
+    x_end = x(hits) + t_remaining * cos(theta_penultimate);
+    y_end = y(hits) + t_remaining * sin(theta_penultimate);
     
-    %% Plot
-    figure(1)
-    plot(x, y, 'Color', color_rgb)
-    xlim([0, 3/2])
-    ylim([0, sqrt(3)/2])
-    daspect([1 1 1])
-    hold on
-    
-    % Plot boundary
-    plot([0,1], [0,0], 'LineWidth', 1, 'Color', 'black')
-    plot([1, 3/2], [0, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
-    plot([0, 1/2], [0, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
-    plot([1/2, 3/2], [sqrt(3) / 2, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
 end
 
 % Reflection off bottom line

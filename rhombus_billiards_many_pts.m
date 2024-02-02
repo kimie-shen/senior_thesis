@@ -1,24 +1,59 @@
 %% Simulation of billiards on rhombus
 % Initial conditions
-x_0 = 1;
-y_0 = 0;
+num_points = 500;
+t_total = 600;
 theta = 2 * pi / 3;
-dtheta = 0.01;
-t_total = 10;
-color_list_1 = [0.635, 0.078, 0.184; 0.850, 0.325, 0.098; 0.929, 0.694, 0.125]; % red, orange, yellow
-color_list_2 = [0.466, 0.674, 0.188; 0.000, 0.447, 0.741; 0.494, 0.184, 0.556]; % green, blue, purple
-half_num_lines = 3;
+dtheta = 0;
 
-% Length
-for i = 1:half_num_lines
-    billiards(x_0, y_0, theta + dtheta * (i / half_num_lines), t_total, color_list_1(half_num_lines + 1 - i, :))
-    hold on
-    billiards(x_0, y_0, theta - dtheta * (i / half_num_lines), t_total, color_list_2(i, :))
+x_i = zeros(num_points, 1);
+y_i = zeros(num_points, 1);
+
+rhombus_width = 0.1;
+rhombus_x = 1 - rhombus_width;
+rhombus_y = 0;
+
+% Randomly generate points in square 
+for i = 1:num_points
+    x_i(i) = rhombus_x + rand() * rhombus_width;
+    y_i(i) = rhombus_y + rand() * (sqrt(3) / 2) * rhombus_width;
+
+    % Shear into rhombus
+    x_i(i) = x_i(i) + y_i(i) / sqrt(3) ;
 end
-hold off
+
+% Randomly generate theta
+theta_i = zeros(num_points, 1);
+
+for i = 1:num_points
+    theta_i(i) = theta - dtheta + 2 * dtheta * rand();
+end
 
 
-function billiards(x_0, y_0, theta, t_total, color_rgb)
+%% Find endpoint after billiards
+x_f = zeros(num_points, 1);
+y_f = zeros(num_points, 1);
+
+for i = 1:num_points
+    [x_f(i), y_f(i)] = billiards(x_i(i), y_i(i), theta_i(i), t_total);
+end
+
+%% Plot
+figure(1)
+scatter(x_f, y_f, '.')
+xlim([0, 3/2])
+ylim([0, sqrt(3)/2])
+daspect([1 1 1])
+hold on
+    
+% Plot boundary
+plot([0,1], [0,0], 'LineWidth', 1, 'Color', 'black')
+plot([1, 3/2], [0, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
+plot([0, 1/2], [0, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
+plot([1/2, 3/2], [sqrt(3) / 2, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
+
+
+%% Functions
+function [x_end, y_end] = billiards(x_0, y_0, theta, t_total)
     % Set variables
     x = [x_0];
     y = [y_0];
@@ -78,22 +113,9 @@ function billiards(x_0, y_0, theta, t_total, color_rgb)
     t_remaining = t_total - t_penultimate;
     
     % Compute end location
-    x(hits + 1) = x(hits) + t_remaining * cos(theta_penultimate);
-    y(hits + 1) = y(hits) + t_remaining * sin(theta_penultimate);
+    x_end = x(hits) + t_remaining * cos(theta_penultimate);
+    y_end = y(hits) + t_remaining * sin(theta_penultimate);
     
-    %% Plot
-    figure(1)
-    plot(x, y, 'Color', color_rgb)
-    xlim([0, 3/2])
-    ylim([0, sqrt(3)/2])
-    daspect([1 1 1])
-    hold on
-    
-    % Plot boundary
-    plot([0,1], [0,0], 'LineWidth', 1, 'Color', 'black')
-    plot([1, 3/2], [0, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
-    plot([0, 1/2], [0, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
-    plot([1/2, 3/2], [sqrt(3) / 2, sqrt(3) / 2], 'LineWidth', 1, 'Color', 'black')
 end
 
 % Reflection off bottom line
