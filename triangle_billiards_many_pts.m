@@ -1,7 +1,7 @@
 %% Simulation of billiards on triangle
 % Initial conditions
 num_points = 1000;
-t_total = 0.9;
+t_total = 1.5;
 theta = pi/2 - 0.01;
 dtheta = 0;
 

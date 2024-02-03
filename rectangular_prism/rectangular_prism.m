@@ -13,7 +13,6 @@ max_N = floor(sqrt(upper_lim / (2 * ((l1 * l2) + (l2 * l3) + (l3 * l1)))));
 fprintf(['Max N = ' num2str(max_N) '\n'])
 
 N_nums = primes(max_N);
-N_nums = [2];
 
 %% Resume Program
 num_irreps = 8;
@@ -390,7 +389,7 @@ for n = 1:size(N_nums, 2)
     %% Plot the level spacings histogram and show r values
     % Plot histograms
     figure(index_n)
-    tiledlayout(2,4)
+    tiledlayout(2, 4,'TileSpacing', 'tight','Padding','Tight')
     bin_factor = 5;
     
     nexttile
@@ -460,7 +459,7 @@ end
 
 %% Plot r as a function of size in each irrep
 figure(index_n)
-tiledlayout(2,4)
+tiledlayout(2,4,'TileSpacing', 'tight','Padding','Tight')
 
 nexttile
 plot(N_nums.', r_array(:, 2).', '-o', 'MarkerEdgeColor', [0 0.4470 0.7410])

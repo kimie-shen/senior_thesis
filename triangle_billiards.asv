@@ -4,9 +4,9 @@ clear;
 % Initial conditions
 x_0 = 1/2;
 y_0 = 0;
-theta = pi;
-dtheta = 0.02;
-t_total = 0;
+theta = pi / 2;
+dtheta = 0.01;
+t_total = 100;
 color_list_1 = [0.635, 0.078, 0.184; 0.850, 0.325, 0.098; 0.929, 0.694, 0.125]; % red, orange, yellow
 color_list_2 = [0.466, 0.674, 0.188; 0.000, 0.447, 0.741; 0.494, 0.184, 0.556]; % green, blue, purple
 half_num_lines = 3;
@@ -30,7 +30,7 @@ function billiards(x_0, y_0, theta, t_total, color_rgb)
     t_penultimate = 0;
     theta_penultimate = 0;
     
-    while (t_traveled <= t_total)
+    while (t_traveled < t_total)
         t_penultimate = t_traveled;
         theta_penultimate = theta;
         t_next = Inf;
@@ -79,7 +79,7 @@ function billiards(x_0, y_0, theta, t_total, color_rgb)
     %% Plot
     figure(1)
     plot(x, y, 'Color', color_rgb)
-    xlim([0, 3/2])
+    xlim([0, 1])
     ylim([0, sqrt(3)/2])
     daspect([1 1 1])
     hold on

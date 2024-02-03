@@ -1,7 +1,7 @@
 %% Simulation of billiards on rhombus
 % Initial conditions
 num_points = 500;
-t_total = 600;
+t_total = 1.5;
 theta = 2 * pi / 3;
 dtheta = 0;
 

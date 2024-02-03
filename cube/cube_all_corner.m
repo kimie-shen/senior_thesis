@@ -21,6 +21,7 @@ for n = 1:size(N_nums, 2)
     %% Diagonalize H and sigma_d matrices
     tic;
     fprintf(['\n    N = ' num2str(N) '\n'])
+
     % Generate Hamiltonian matrix
     L = 1/N; % Spacing
     H = zeros(6 * N^2, 6 * N^2); % Hamiltonian matrix
@@ -34,7 +35,6 @@ for n = 1:size(N_nums, 2)
     end
 
     % Add corner potentials
-    % Add potentials at all vertices
     for face = 1:6
         % Bottom left corner
         x = 1; 
@@ -392,7 +392,7 @@ for n = 1:size(N_nums, 2)
     %% Plot the level spacings histogram and show r values
     % Plot histograms
     figure(index_n)
-    tiledlayout(2,5)
+    tiledlayout(2, 5,'TileSpacing', 'tight','Padding','Tight')
     bin_factor = 5;
     
     nexttile
@@ -467,7 +467,7 @@ for n = 1:size(N_nums, 2)
     
     set(figure(index_n),'position',[0,100,3000,400])
     
-    % Incremenet indices
+    % Increment indices
     index_n = index_n + 1;
     index_size = index_size + 1;
     index_r = index_r + 1;
@@ -475,43 +475,45 @@ end
 
 %% Plot r as a function of size in each irrep
 figure(index_n)
-tiledlayout(2,5)
+tiledlayout(2, 5, 'TileSpacing', 'tight', 'Padding', 'Tight')
+ylow = 0.3;
+yhigh = 0.7;
 
 nexttile
-plot(N_nums.', r_array(:, 2).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums.', r_array(:, 2).', 'Linestyle', '-', 'Marker', '.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('A1g')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.39, '--', 'r = 0.39')
-ylim([0.3, 0.8])
+ylim([ylow, yhigh])
 
 nexttile
-plot(N_nums, r_array(:, 3).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 3).', 'Linestyle', '-', 'Marker', '.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('A2g')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.39, '--', 'r = 0.39')
-ylim([0.3, 0.8])
+ylim([ylow, yhigh])
 
 nexttile
-plot(N_nums, r_array(:, 4).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 4).', 'Linestyle', '-',' Marker', '.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('Eg')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 0.8])
+ylim([ylow, yhigh])
 
 nexttile
-plot(N_nums, r_array(:, 5).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 5).', 'Linestyle', '-', 'Marker', '.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('T1g')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 0.8])
+ylim([ylow, yhigh])
 
 nexttile
 plot(N_nums, r_array(:, 6).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
@@ -520,7 +522,7 @@ xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 0.8])
+ylim([ylow, yhigh])
 
 nexttile
 plot(N_nums, r_array(:, 7).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
@@ -529,7 +531,7 @@ xlabel('N')
 ylabel('r')
 hold on 
 yline(0.39, '--', 'r = 0.39')
-ylim([0.3, 0.8])
+ylim([ylow, yhigh])
 
 nexttile
 plot(N_nums, r_array(:, 8).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
@@ -538,7 +540,7 @@ xlabel('N')
 ylabel('r')
 hold on 
 yline(0.39, '--', 'r = 0.39')
-ylim([0.3, 0.8])
+ylim([ylow, yhigh])
 
 nexttile
 plot(N_nums, r_array(:, 9).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
@@ -547,7 +549,7 @@ xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 0.8])
+ylim([ylow, yhigh])
 
 nexttile
 plot(N_nums, r_array(:, 10).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
@@ -556,7 +558,7 @@ xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 0.8])
+ylim([ylow, yhigh])
 
 nexttile
 plot(N_nums, r_array(:, 11).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
@@ -565,7 +567,7 @@ xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53')
-ylim([0.3, 0.8])
+ylim([ylow, yhigh])
 
 set(figure(index_n),'position',[0,100,3000,400])
 

@@ -4,9 +4,9 @@ clear;
 % Initial conditions
 x_0 = 1/2;
 y_0 = 0;
-theta = pi / 2 + 0.01;
-dtheta = 0;
-t_total = 100;
+theta = pi / 2;
+dtheta = 0.01;
+t_total = 10;
 color_list_1 = [0.635, 0.078, 0.184; 0.850, 0.325, 0.098; 0.929, 0.694, 0.125]; % red, orange, yellow
 color_list_2 = [0.466, 0.674, 0.188; 0.000, 0.447, 0.741; 0.494, 0.184, 0.556]; % green, blue, purple
 half_num_lines = 3;
