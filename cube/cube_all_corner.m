@@ -1,5 +1,6 @@
 % Calculate r values for various N
 clear;
+close all
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
 potential = 0;
 %N_nums = [5, 10, 15];

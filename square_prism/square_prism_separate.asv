@@ -24,7 +24,7 @@ upper_lim = 30000; % Max number of sites allowed in laptop memory
 max_N = floor(sqrt(upper_lim / (2 * (l1 * l1) + 4 * (l1 * l2))));
 fprintf(['Max N = ' num2str(max_N) '\n'])
 N_nums = primes(max_N);
-N_nums = N_nums(4:end);
+%N_nums = [11, 13];
 
 % Make directory
 folderName = ['square_prism_l1=' num2str(l1) '_l2=' num2str(l2)];
@@ -272,12 +272,12 @@ for n = 1:size(N_nums, 2)
             index_a2g_solv = index_a2g_solv + 1;
             elevels_a2u_solv(index_a2u_solv, :) = energy_levels_rounded(i, :); 
             index_a2u_solv = index_a2u_solv + 1;
-        elseif (isequal(traces, [2, 2, -2, 0, 0])) % Accidental degeneracy B1g + B1u
+        elseif (isequal(traces, [2, -2, 2, 0, 0])) % Accidental degeneracy B1g + B1u
             elevels_b1g_solv(index_b1g_solv, :) = energy_levels_rounded(i, :);
             index_b1g_solv = index_b1g_solv + 1;
             elevels_b1u_solv(index_b1u_solv, :) = energy_levels_rounded(i, :); 
             index_b1u_solv = index_b1u_solv + 1;
-        elseif (isequal(traces, [2, -2, 2, 0, 0])) % Accidental degeneracy B2g + B2u
+        elseif (isequal(traces, [2, 2, -2, 0, 0])) % Accidental degeneracy B2g + B2u
             elevels_b2g_solv(index_b2g_solv, :) = energy_levels_rounded(i, :);
             index_b2g_solv = index_b2g_solv + 1;
             elevels_b2u_solv(index_b2u_solv, :) = energy_levels_rounded(i, :);
@@ -285,10 +285,10 @@ for n = 1:size(N_nums, 2)
         elseif (isequal(traces, [1, -1, -1, 1, -1])) % A2g
             elevels_a2g(index_a2g, :) = energy_levels_rounded(i, :);
             index_a2g = index_a2g + 1;
-        elseif (isequal(traces, [1, 1, -1, 1, -1])) % B1g
+        elseif (isequal(traces, [1, -1, 1, 1, -1])) % B1g
             elevels_b1g(index_b1g, :) = energy_levels_rounded(i, :);
             index_b1g = index_b1g + 1;
-        elseif (isequal(traces, [1, -1, 1, 1, 1])) % B2g
+        elseif (isequal(traces, [1, 1, -1, 1, 1])) % B2g
             elevels_b2g(index_b2g, :) = energy_levels_rounded(i, :);
             index_b2g = index_b2g + 1;
         elseif (isequal(traces, [2, 0, 0, 2, 0])) % Eg
@@ -300,10 +300,10 @@ for n = 1:size(N_nums, 2)
         elseif (isequal(traces, [1, -1, -1, -1, 1])) % A2u
             elevels_a2u(index_a2u, :) = energy_levels_rounded(i, :);
             index_a2u = index_a2u + 1;
-        elseif (isequal(traces, [1, 1, -1, -1, 1])) % B1u
+        elseif (isequal(traces, [1, -1, 1, -1, 1])) % B1u
             elevels_b1u(index_b1u, :) = energy_levels_rounded(i, :);
             index_b1u = index_b1u + 1;
-        elseif (isequal(traces, [1, -1, 1, -1, -1])) % B2u
+        elseif (isequal(traces, [1, 1, -1, -1, -1])) % B2u
             elevels_b2u(index_b2u, :) = energy_levels_rounded(i, :);
             index_b2u = index_b2u + 1;
         elseif (isequal(traces, [2, 0, 0, -2, 0])) % Eu
@@ -477,7 +477,7 @@ for n = 1:size(N_nums, 2)
             elevels_a2g_solv = elevels_a2g_solv(1:(index_a2g_solv - 1), :);
         end
 
-        if (index_a2u_solv > 1)
+        if (index_b2u_solv > 1)
             elevels_a2u_solv = elevels_a2u_solv(1:(index_a2u_solv - 1), :);
         end
     elseif (l1_even == false && l2_even == false)
@@ -940,6 +940,26 @@ figure(index_n + 1)
     ylim([ylow_solv, yhigh_solv])
 
 if (l1_even == false && l2_even)
+    tiledlayout(2, 2,'TileSpacing', 'tight','Padding','Tight')
+
+    nexttile
+    plot(N_nums.', r_array(:, 12).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    title('A1g')
+    xlabel('N')
+    ylabel('r')
+    hold on 
+    yline(0.39, '--', 'r = 0.39')
+    ylim([ylow_solv, yhigh_solv])
+
+    nexttile
+    plot(N_nums, r_array(:, 13).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+    title('A1u')
+    xlabel('N')
+    ylabel('r')
+    hold on 
+    yline(0.39, '--', 'r = 0.39')
+    ylim([ylow_solv, yhigh_solv])
+
     nexttile
     plot(N_nums, r_array(:, 14).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
     title('B2g')
@@ -957,44 +977,7 @@ if (l1_even == false && l2_even)
     hold on 
     yline(0.39, '--', 'r = 0.39')
     ylim([ylow_solv, yhigh_solv])
-elseif (l1_even && l2_even == false)
-    nexttile
-    plot(N_nums, r_array(:, 14).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
-    title('A2g')
-    xlabel('N')
-    ylabel('r')
-    hold on 
-    yline(0.39, '--', 'r = 0.39')
-    ylim([ylow_solv, yhigh_solv])
-    
-    nexttile
-    plot(N_nums, r_array(:, 15).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
-    title('A2u')
-    xlabel('N')
-    ylabel('r')
-    hold on 
-    yline(0.39, '--', 'r = 0.39')
-    ylim([ylow_solv, yhigh_solv])
-elseif (l1_even == false && l2_even == false)
-    nexttile
-    plot(N_nums, r_array(:, 14).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
-    title('B1g')
-    xlabel('N')
-    ylabel('r')
-    hold on 
-    yline(0.39, '--', 'r = 0.39')
-    ylim([ylow_solv, yhigh_solv])
-    
-    nexttile
-    plot(N_nums, r_array(:, 15).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
-    title('B1u')
-    xlabel('N')
-    ylabel('r')
-    hold on 
-    yline(0.39, '--', 'r = 0.39')
-    ylim([ylow_solv, yhigh_solv])
 end
-
 set(figure(index_n + 1),'position',[0,100,1000,400])
 saveas(gcf, [folderName '/LSR_plot_solv.jpeg']);
 
@@ -1028,16 +1011,13 @@ nexttile
 plot(N_nums, r_array(:, 12).', 'Linestyle','-','Marker','.')
 hold on
 plot(N_nums.', r_array(:, 13).', 'Linestyle','-','Marker','.')
-plot(N_nums.', r_array(:, 14).', 'Linestyle','-','Marker','.')
-plot(N_nums.', r_array(:, 15).', 'Linestyle','-','Marker','.')
-if (l1_even == false && l2_even)
+if (l1_even == false)
+    plot(N_nums.', r_array(:, 14).', 'Linestyle','-','Marker','.')
+    plot(N_nums.', r_array(:, 15).', 'Linestyle','-','Marker','.')
     legend('A1g', 'A1u', 'B2g', 'B2u')
-elseif (l1_even && l2_even == false)
-    legend('A1g', 'A1u', 'A2g', 'A2u')
-elseif (l1_even == false && l2_even == false)
-    legend('A1g', 'A1u', 'B1g', 'B1u')
+else
+    legend('A1g', 'A1u')
 end
-
 title('Solvable wavefunctions')
 xlabel('N')
 ylabel('r')
@@ -1077,15 +1057,9 @@ save([folderName '/elevels_b2u.mat'],'elevels_b2u','-v7.3')
 save([folderName '/elevels_eg.mat'],'elevels_eg','-v7.3')
 save([folderName '/elevels_eu.mat'],'elevels_eu','-v7.3')
 
-if (l1_even == false && l2_even)
+if (l1_even == false)
     save([folderName 'elevels_b2g_solv_sorted.mat'],'elevels_b2g_solv_sorted','-v7.3')
     save([folderName 'elevels_b2u_solv.mat'],'elevels_b2u_solv','-v7.3')
-elseif (l1_even && l2_even == false)
-    save([folderName 'elevels_a2u_solv_sorted.mat'],'elevels_a2u_solv_sorted','-v7.3')
-    save([folderName 'elevels_a2g_solv.mat'],'elevels_a2g_solv','-v7.3')
-elseif (l1_even == false && l2_even == false)
-    save([folderName 'elevels_b1u_solv_sorted.mat'],'elevels_b1u_solv_sorted','-v7.3')
-    save([folderName 'elevels_b1g_solv.mat'],'elevels_b1g_solv','-v7.3')
 end
 
 

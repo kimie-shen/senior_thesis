@@ -1,5 +1,6 @@
 %% Complete calculation for square prism (no corner potential)
 clear;
+close all
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
 corner_potential = -0;
 

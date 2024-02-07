@@ -1,0 +1,1 @@
+plot(N_nums, r_array(:, 4))
