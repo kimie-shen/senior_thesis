@@ -1,11 +1,11 @@
 % Calculate energy spacings of solvable eigenstates
 clear; 
 
-num_sites = 73;
-energies_a1g = zeros(ceil(num_sites^2 / 2), 3);
-energies_a2g = zeros(ceil(num_sites^2 / 2), 3);
-energies_a1u = zeros(ceil(num_sites^2 / 2), 3);
-energies_a2u = zeros(ceil(num_sites^2 / 2), 3);
+N = 997;
+energies_a1g = zeros(ceil(N^2 / 2), 3);
+energies_a2g = zeros(ceil(N^2 / 2), 3);
+energies_a1u = zeros(ceil(N^2 / 2), 3);
+energies_a2u = zeros(ceil(N^2 / 2), 3);
 
 index_a1g = 1;
 index_a1u = 1;
@@ -13,26 +13,26 @@ index_a2g = 1;
 index_a2u = 1;
 
 % Fill in A1g and A1u wavefunctions: (n1, n2) with n1 =/= n2, both non-zero
-for n1 = 1:(num_sites - 2)
-    for n2 = (n1 + 2):2:num_sites
+for n1 = 1:(N - 2)
+    for n2 = (n1 + 2):2:N
         if (mod(n1, 2) == 0)
-            energies_a1g(index_a1g, 1) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n2 / num_sites));
+            energies_a1g(index_a1g, 1) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n2 / N));
             energies_a1g(index_a1g, 2) = n1;
             energies_a1g(index_a1g, 3) = n2;
             %fprintf(['n1=' num2str(n1) ' n2=' num2str(n2) '\n'])
             index_a1g = index_a1g + 1;
 
-            energies_a1u(index_a1u, 1) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n2 / num_sites));
+            energies_a1u(index_a1u, 1) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n2 / N));
             energies_a1u(index_a1u, 2) = n1;
             energies_a1u(index_a1u, 3) = n2;
             index_a1u = index_a1u + 1;
         else
-            energies_a2g(index_a2g) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n2 / num_sites));
+            energies_a2g(index_a2g) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n2 / N));
             energies_a2g(index_a2g, 2) = n1;
             energies_a2g(index_a2g, 3) = n2;
             index_a2g = index_a2g + 1;
 
-            energies_a2u(index_a2u) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n2 / num_sites));
+            energies_a2u(index_a2u) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n2 / N));
             energies_a2u(index_a2u, 2) = n1;
             energies_a2u(index_a2u, 3) = n2;
             index_a2u = index_a2u + 1;
@@ -41,24 +41,24 @@ for n1 = 1:(num_sites - 2)
 end
 
 % Fill in A1g wavefunctions: (0, n1) with n1 even
-for n1 = 0:2:num_sites
-    energies_a1g(index_a1g) = 2 * num_sites^2 * (2 - cos(pi * 0 / num_sites) - cos(pi * n1 / num_sites));
+for n1 = 0:2:N
+    energies_a1g(index_a1g) = 2 * N^2 * (2 - cos(pi * 0 / N) - cos(pi * n1 / N));
     energies_a1g(index_a1g, 2) = 0;
     energies_a1g(index_a1g, 3) = n1;
     index_a1g = index_a1g + 1;
 end
 
 % Fill in A1g wavefunctions: (n1, n1) with n1 even
-for n1 = 2:2:num_sites
-    energies_a1g(index_a1g) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n1 / num_sites));
+for n1 = 2:2:N
+    energies_a1g(index_a1g) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n1 / N));
     energies_a1g(index_a1g, 2) = n1;
     energies_a1g(index_a1g, 3) = n1;
     index_a1g = index_a1g + 1;
 end
 
 % Fill in A2u wavefunctions: (n1, n1) with n1 odd
-for n1 = 1:2:num_sites
-    energies_a2u(index_a2u) = 2 * num_sites^2 * (2 - cos(pi * n1 / num_sites) - cos(pi * n1 / num_sites));
+for n1 = 1:2:N
+    energies_a2u(index_a2u) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n1 / N));
     energies_a2u(index_a2u, 2) = n1;
     energies_a2u(index_a2u, 3) = n1;
     index_a2u = index_a2u + 1;
@@ -121,7 +121,7 @@ r_a2u = LSR(spacings_a2u(:, 1));
 r_a2g = LSR(spacings_a2g(:, 1));
 
 % Plot histogram
-tiledlayout(1,4)
+tiledlayout(1,4,'TileSpacing', 'tight','Padding','Tight')
 nexttile
 histogram(spacings_a1g(2:end), 100, 'FaceColor','black', 'EdgeColor','none')
 title(['A1g: r = ' num2str(r_a1g)])

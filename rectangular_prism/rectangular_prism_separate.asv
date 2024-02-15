@@ -710,7 +710,7 @@ for n = 1:size(N_nums, 2)
     % Resort elevels_solv for Ag, B irreps
     elevels_ag_solv_sorted = sortrows(elevels_ag_solv);
     elevels_au_solv_sorted = sortrows(elevels_au_solv);
-
+    
     if (l1_l2_same_parity == true)
         elevels_b3g_solv_sorted = sortrows(elevels_b3g_solv);
         elevels_b3u_solv_sorted = sortrows(elevels_b3u_solv);
@@ -787,10 +787,14 @@ for n = 1:size(N_nums, 2)
     end
 
     for i = 1:(size(elevels_au_solv, 1) - 1)
-        spacings_au_solv(i) = abs(elevels_au_solv_sorted(i, 1) - elevels_au_solv_sorted(i+1, 1));
+        spacings_au_solv(i) = abs(elevels_au_solv(i, 1) - elevels_au_solv(i+1, 1));
     end
 
-    if (l1_l2_same_parity == true)
+    if (all_same_parity == true) 
+        for i = 1:(size(elevels_au_solv_sorted, 1) - 1)
+            spacings_au_solv(i) = abs(elevels_au_solv_sorted(i, 1) - elevels_au_solv_sorted(i+1, 1));
+        end
+    elseif (l1_l2_same_parity == true)
         for i = 1:(size(elevels_b3g_solv_sorted, 1) - 1)
             spacings_b3g_solv(i) = abs(elevels_b3g_solv_sorted(i, 1) - elevels_b3g_solv_sorted(i+1, 1));
         end
@@ -1156,7 +1160,7 @@ if (all_same_parity == true)
     yline(0.39, '--', 'r = 0.39')
     ylim([ylow_solv, yhigh_solv])
 
-    set(figure(index_n + 1),'position',[0,100,800,300])
+    set(figure(index_n + 1),'position',[0,100,1000,400])
     saveas(gcf, [folderName '/LSR_plot_solv.jpeg']);
  
 else
@@ -1237,7 +1241,7 @@ else
         ylim([ylow_solv, yhigh_solv])
     end
 
-    set(figure(index_n + 1),'position',[0,100,800,300])
+    set(figure(index_n + 1),'position',[0,100,1000,400])
     saveas(gcf, [folderName '/LSR_plot_solv.jpeg']);
 end
 
@@ -1292,7 +1296,7 @@ ylabel('r')
 hold on 
 yline(0.39, '--', 'r = 0.39', 'HandleVisibility','off')
 ylim([ylow_solv, yhigh_solv])
-set(figure(index_n + 2),'position',[0,100,800,300])
+set(figure(index_n + 2),'position',[0,100,1000,400])
 saveas(gcf, [folderName '/LSR_plot_combined.jpeg']);
 
 %% Plot proportions of solvable states
@@ -1321,18 +1325,22 @@ save([folderName '/elevels_b2u.mat'],'elevels_b2u','-v7.3')
 save([folderName '/elevels_b3g.mat'],'elevels_b2g','-v7.3')
 save([folderName '/elevels_b3u.mat'],'elevels_b2u','-v7.3')
 
-save([folderName '/elevels_ag_solv_sorted.mat'],'elevels_ag_solv_sorted','-v7.3')
-save([folderName '/elevels_au_solv_sorted.mat'],'elevels_au_solv_sorted','-v7.3')   
+save([folderName 'elevels_ag_solv_sorted.mat'],'elevels_ag_solv_sorted','-v7.3')
 
-if (l1_l2_same_parity == true)
+if (all_same_parity == true) 
+    save([folderName '/elevels_au_solv_sorted.mat'],'elevels_au_solv_sorted','-v7.3')   
+elseif (l1_l2_same_parity == true)
     save([folderName '/elevels_b3g_solv_sorted.mat'],'elevels_b3g_solv_sorted','-v7.3')
     save([folderName '/elevels_b3u_solv_sorted.mat'],'elevels_b3u_solv_sorted','-v7.3')
+    save([folderName '/elevels_au_solv.mat'],'elevels_au_solv','-v7.3')
 elseif (l1_l3_same_parity == true)
     save([folderName '/elevels_b2g_solv_sorted.mat'],'elevels_b2g_solv_sorted','-v7.3')
     save([folderName '/elevels_b2u_solv_sorted.mat'],'elevels_b2u_solv_sorted','-v7.3')
+    save([folderName '/elevels_au_solv.mat'],'elevels_au_solv','-v7.3')
 elseif (l2_l3_same_parity == true)
     save([folderName '/elevels_b1g_solv_sorted.mat'],'elevels_b1g_solv_sorted','-v7.3')
     save([folderName '/elevels_b1u_solv_sorted.mat'],'elevels_b1u_solv_sorted','-v7.3')
+    save([folderName '/elevels_au_solv.mat'],'elevels_au_solv','-v7.3')
 end
 
 %% Functions

@@ -4,7 +4,7 @@ close all
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
 
 % Side length ratios
-l1 = 2;
+l1 = 3;
 l2 = 1;
 
 % Is l1 even or not?
@@ -27,7 +27,7 @@ N_nums = primes(max_N);
 N_nums = N_nums(4:end);
 
 % Make directory
-folderName = ['square_prism_l1=' num2str(l1) '_l2=' num2str(l2)];
+folderName = ['square_prism_l1=' num2str(l1) '_l2=' num2str(l2) '_separated'];
 mkdir(folderName);
 
 % Set indices
@@ -319,10 +319,11 @@ for n = 1:size(N_nums, 2)
 
     %% Calculate energies of non-degen solvable wavefunctions
     % Calculate solvable wavefunctions energies from A1g (n1, n1) with n1 even
-    a1g_exp_energies_even = zeros(ceil(N / 2), 1);
-    for i = 1:ceil(N / 2)
-        n1 = (i - 1) * 2;
-        a1g_exp_energies_even(i) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n1 / N));
+    a1g_exp_energies_even = zeros(N + 1, 1);
+    for i = 0:2:(N - 1)
+        n1 = i;
+        a1g_exp_energies_even(i + 1) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n1 / N));
+        a1g_exp_energies_even(i + 2) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * 0 / N));
     end
 
     if (l1_even == false && l2_even) % Calculate solvable wavefunctions energies from B2g (n1, n1) with n1 odd (l1 odd, l2 even)
@@ -345,12 +346,19 @@ for n = 1:size(N_nums, 2)
         end
     end
 
-    %% Remove non-degen solvable wavefunctions
+    % Calculate edge number wave energies (N, n1)
+    edge_wave_energies = zeros(ceil(N / 2), 1);
+    for i = 1:ceil(N / 2)
+        n1 = 2 * i - 1;
+        edge_wave_energies(i) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * N / N));
+    end
+
+    %% Remove non-degen and edge solvable wavefunctions
 
     % Remove from A1g (even n1)
     for i = 1:(index_a1g - 1)
         if (i < index_a1g)
-            for j = 1:ceil(N / 2)
+            for j = 1:(N + 1)
                 if (abs(a1g_exp_energies_even(j) - elevels_a1g(i, 1)) < tolerance)
                     % Add to elevel_a1g_solv
                     elevels_a1g_solv(index_a1g_solv, :) = elevels_a1g(i, :);
@@ -377,9 +385,34 @@ for n = 1:size(N_nums, 2)
                         elevels_b2g(i, :) = [];
                         index_b2g = index_b2g - 1;
                     end
+
+                    if ((i < index_b2g) && (abs(edge_wave_energies(j) - elevels_b2g(i, 1)) < tolerance))
+                        % Add to elevel_b2g_solv
+                        elevels_b2g_solv(index_b2g_solv, :) = elevels_b2g(i, :);
+                        index_b2g_solv = index_b2g_solv + 1;
+    
+                        % Delete from elevels_b2g
+                        elevels_b2g(i, :) = [];
+                        index_b2g = index_b2g - 1;
+                    end
                 end
             end
         end
+        for i = 1:(index_b2u - 1)
+            if (i < index_b2u)
+                for j = 1:ceil(N / 2)
+                    if ((i < index_b2u) && (abs(edge_wave_energies(j) - elevels_b2u(i, 1)) < tolerance))
+                        % Add to elevel_b2u_solv
+                        elevels_b2u_solv(index_b2u_solv, :) = elevels_b2u(i, :);
+                        index_b2u_solv = index_b2u_solv + 1;
+    
+                        % Delete from elevels_b2u
+                        elevels_b2u(i, :) = [];
+                        index_b2u = index_b2u - 1;
+                    end
+                end
+            end
+        end      
     elseif (l1_even && l2_even == false) % Remove from A2u (odd n1)
         for i = 1:(index_a2u - 1)
             if (i < index_a2u)
@@ -393,9 +426,34 @@ for n = 1:size(N_nums, 2)
                         elevels_a2u(i, :) = [];
                         index_a2u = index_a2u - 1;
                     end
+
+                    if ((i < index_a2u) && (abs(edge_wave_energies(j) - elevels_a2u(i, 1)) < tolerance))
+                        % Add to elevel_a2u_solv
+                        elevels_a2u_solv(index_a2u_solv, :) = elevels_a2u(i, :);
+                        index_a2u_solv = index_a2u_solv + 1;
+    
+                        % Delete from elevels_a2u
+                        elevels_a2u(i, :) = [];
+                        index_a2u = index_a2u - 1;
+                    end
                 end
             end
         end
+        for i = 1:(index_a2g - 1)
+            if (i < index_a2g)
+                for j = 1:ceil(N / 2)
+                    if ((i < index_a2g) && (abs(edge_wave_energies(j) - elevels_a2g(i, 1)) < tolerance))
+                        % Add to elevel_a2g_solv
+                        elevels_a2g_solv(index_a2g_solv, :) = elevels_a2g(i, :);
+                        index_a2g_solv = index_a2g_solv + 1;
+    
+                        % Delete from elevels_a2g
+                        elevels_a2g(i, :) = [];
+                        index_a2g = index_a2g - 1;
+                    end
+                end
+            end
+        end 
     elseif (l1_even == false && l2_even == false) % Remove from B1u (odd n1)
         for i = 1:(index_b1u - 1)
             if (i < index_b1u)
@@ -409,9 +467,34 @@ for n = 1:size(N_nums, 2)
                         elevels_b1u(i, :) = [];
                         index_b1u = index_b1u - 1;
                     end
+
+                    if ((i < index_b1u) && (abs(edge_wave_energies(j) - elevels_b1u(i, 1)) < tolerance))
+                        % Add to elevel_b1u_solv
+                        elevels_b1u_solv(index_b1u_solv, :) = elevels_b1u(i, :);
+                        index_b1u_solv = index_b1u_solv + 1;
+    
+                        % Delete from elevels_b1u
+                        elevels_b1u(i, :) = [];
+                        index_b1u = index_b1u - 1;
+                    end
                 end
             end
         end
+        for i = 1:(index_b1g - 1)
+            if (i < index_b1g)
+                for j = 1:ceil(N / 2)
+                    if ((i < index_b1g) && (abs(edge_wave_energies(j) - elevels_b1g(i, 1)) < tolerance))
+                        % Add to elevel_b1g_solv
+                        elevels_b1g_solv(index_b1g_solv, :) = elevels_b1g(i, :);
+                        index_b1g_solv = index_b1g_solv + 1;
+    
+                        % Delete from elevels_b1g
+                        elevels_b1g(i, :) = [];
+                        index_b1g = index_b1g - 1;
+                    end
+                end
+            end
+        end 
     end
  
     %% Clean up
@@ -490,15 +573,19 @@ for n = 1:size(N_nums, 2)
         end
     end
 
-    % Resort elevels_solv for A1g, B2g, A2u, B1u
+    % Resort elevels_solv
     elevels_a1g_solv_sorted = sortrows(elevels_a1g_solv);
+    elevels_a1u_solv_sorted = sortrows(elevels_a1u_solv);
 
     if (l1_even == false && l2_even)  
         elevels_b2g_solv_sorted = sortrows(elevels_b2g_solv);
+        elevels_b2u_solv_sorted = sortrows(elevels_b2u_solv);
     elseif (l1_even && l2_even == false)  
         elevels_a2u_solv_sorted = sortrows(elevels_a2u_solv);
+        elevels_a2g_solv_sorted = sortrows(elevels_a2g_solv);
     elseif (l1_even == false && l2_even == false)  
         elevels_b1u_solv_sorted = sortrows(elevels_b1u_solv);
+        elevels_b1g_solv_sorted = sortrows(elevels_b1g_solv);
     end
 
     %% Find energy level spacings STOPPED HERE
@@ -572,8 +659,8 @@ for n = 1:size(N_nums, 2)
         spacings_a1g_solv(i) = abs(elevels_a1g_solv_sorted(i, 1) - elevels_a1g_solv_sorted(i + 1, 1));
     end
 
-    for i = 1:(size(elevels_a1u_solv, 1) - 1)
-        spacings_a1u_solv(i) = abs(elevels_a1u_solv(i, 1) - elevels_a1u_solv(i+1, 1));
+    for i = 1:(size(elevels_a1u_solv_sorted, 1) - 1)
+        spacings_a1u_solv(i) = abs(elevels_a1u_solv_sorted(i, 1) - elevels_a1u_solv_sorted(i+1, 1));
     end
 
     if (l1_even == false && l2_even)
@@ -581,24 +668,24 @@ for n = 1:size(N_nums, 2)
             spacings_b2g_solv(i) = abs(elevels_b2g_solv_sorted(i, 1) - elevels_b2g_solv_sorted(i+1, 1));
         end
         
-        for i = 1:(size(elevels_b2u_solv, 1) - 1)
-            spacings_b2u_solv(i) = abs(elevels_b2u_solv(i, 1) - elevels_b2u_solv(i+1, 1));
+        for i = 1:(size(elevels_b2u_solv_sorted, 1) - 1)
+            spacings_b2u_solv(i) = abs(elevels_b2u_solv_sorted(i, 1) - elevels_b2u_solv_sorted(i+1, 1));
         end
     elseif (l1_even && l2_even == false)
         for i = 1:(size(elevels_a2u_solv_sorted, 1) - 1)
             spacings_a2u_solv(i) = abs(elevels_a2u_solv_sorted(i, 1) - elevels_a2u_solv_sorted(i+1, 1));
         end
         
-        for i = 1:(size(elevels_a2g_solv, 1) - 1)
-            spacings_a2g_solv(i) = abs(elevels_a2g_solv(i, 1) - elevels_a2g_solv(i+1, 1));
+        for i = 1:(size(elevels_a2g_solv_sorted, 1) - 1)
+            spacings_a2g_solv(i) = abs(elevels_a2g_solv_sorted(i, 1) - elevels_a2g_solv_sorted(i+1, 1));
         end
     elseif (l1_even == false && l2_even == false)
         for i = 1:(size(elevels_b1u_solv_sorted, 1) - 1)
             spacings_b1u_solv(i) = abs(elevels_b1u_solv_sorted(i, 1) - elevels_b1u_solv_sorted(i+1, 1));
         end
         
-        for i = 1:(size(elevels_b1g_solv, 1) - 1)
-            spacings_b1g_solv(i) = abs(elevels_b1g_solv(i, 1) - elevels_b1g_solv(i+1, 1));
+        for i = 1:(size(elevels_b1g_solv_sorted, 1) - 1)
+            spacings_b1g_solv(i) = abs(elevels_b1g_solv_sorted(i, 1) - elevels_b1g_solv_sorted(i+1, 1));
         end
     end
 
@@ -809,8 +896,74 @@ for n = 1:size(N_nums, 2)
     set(figure(index_n + 1),'position',[0, 100, 700, 400])
     saveas(gcf, [folderName '/N=' num2str(N) '_elevel_hist_solv.jpeg']);
 
+
+    % Plot histogram after removal of solvable wavefunctions
+    figure(index_n + 2)
+        tiledlayout(2,2, 'TileSpacing', 'tight','Padding','Tight')
+        bin_factor = 5;
+
+        nexttile
+        histogram(spacings_a1g, ceil(size(elevels_a1g, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('A1g')
+        subtitle(['r = ' num2str(r_a1g) '; total = ' num2str(size(elevels_a1g, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    
+        nexttile
+        histogram(spacings_a1u, ceil(size(elevels_a1u, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('A1u')
+        subtitle(['r = ' num2str(r_a1u) '; total = ' num2str(size(elevels_a1u, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+
+    if (l1_even == false && l2_even)
+        nexttile
+        histogram(spacings_b2g, ceil(size(elevels_b2g, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('B2g')
+        subtitle(['r = ' num2str(r_b2g) '; total = ' num2str(size(elevels_b2g, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    
+        nexttile
+        histogram(spacings_b2u, ceil(size(elevels_b2u, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('B2u')
+        subtitle(['r = ' num2str(r_b2u) '; total = ' num2str(size(elevels_b2u, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    elseif (l1_even && l2_even == false)
+        nexttile
+        histogram(spacings_a2g, ceil(size(elevels_a2g, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('A2g')
+        subtitle(['r = ' num2str(r_a2g) '; total = ' num2str(size(elevels_a2g, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    
+        nexttile
+        histogram(spacings_a2u, ceil(size(elevels_a2u, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('A2u')
+        subtitle(['r = ' num2str(r_a2u) '; total = ' num2str(size(elevels_a2u, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    elseif (l1_even == false && l2_even == false)
+        nexttile
+        histogram(spacings_b1g, ceil(size(elevels_b1g, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('B1g')
+        subtitle(['r = ' num2str(r_b1g) '; total = ' num2str(size(elevels_b1g, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    
+        nexttile
+        histogram(spacings_b1u, ceil(size(elevels_b1u, 1)/bin_factor), 'FaceColor','black', 'EdgeColor','none')
+        title('B1u')
+        subtitle(['r = ' num2str(r_b1u) '; total = ' num2str(size(elevels_b1u, 1))])
+        xlabel('Energy spacing')
+        ylabel('Counts')
+    end
+    set(figure(index_n + 2),'position',[0, 100, 700, 400])
+    saveas(gcf, [folderName '/N=' num2str(N) '_elevel_hist_unsolv_removed.jpeg']);
+
     % Increment indices
-    index_n = index_n + 2;
+    index_n = index_n + 3;
     index_size = index_size + 1;
     index_r = index_r + 1;
     
@@ -919,7 +1072,7 @@ saveas(gcf, [folderName '/LSR_plot.jpeg']);
 
 % Plot r values for solvable wavefunctions
 figure(index_n + 1)
-    tiledlayout(1, 2, 'TileSpacing', 'tight','Padding','Tight')
+    tiledlayout(2, 2, 'TileSpacing', 'tight','Padding','Tight')
 
     nexttile
     plot(N_nums.', r_array(:, 12).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
@@ -995,12 +1148,12 @@ elseif (l1_even == false && l2_even == false)
     ylim([ylow_solv, yhigh_solv])
 end
 
-set(figure(index_n + 1),'position',[0,100,1000,400])
+set(figure(index_n + 1),'position',[0,100,1000,600])
 saveas(gcf, [folderName '/LSR_plot_solv.jpeg']);
 
 %% Plot r values together
 figure(index_n + 2)
-tiledlayout(1,2,'TileSpacing', 'tight','Padding','Tight')
+tiledlayout(1, 3,'TileSpacing', 'tight','Padding','Tight')
 bin_factor = 5;
     
 nexttile
@@ -1010,19 +1163,28 @@ plot(N_nums.', r_array(:, 3).', 'Linestyle','-','Marker','.')
 plot(N_nums.', r_array(:, 4).', 'Linestyle','-','Marker','.')
 plot(N_nums.', r_array(:, 5).', 'Linestyle','-','Marker','.')
 plot(N_nums.', r_array(:, 6).', 'Linestyle','-','Marker','.')
-plot(N_nums.', r_array(:, 7).', 'Linestyle','-','Marker','.')
-plot(N_nums.', r_array(:, 8).', 'Linestyle','-','Marker','.')
-plot(N_nums.', r_array(:, 9).', 'Linestyle','-','Marker','.')
-plot(N_nums.', r_array(:, 10).', 'Linestyle','-','Marker','.')
-plot(N_nums.', r_array(:, 11).', 'Linestyle','-','Marker','.')
-legend('A1g','A2g','B1g','B2g','Eg','A1u','A2u','B1u','B2u','Eu')
+legend('A1g','A2g','B1g','B2g','Eg')
 title('Unsolvable wavefunctions')
 xlabel('N')
 ylabel('r')
 hold on 
 yline(0.53, '--', 'r = 0.53', 'HandleVisibility','off')
 ylim([ylow_unsolv, yhigh_unsolv])
-hold off
+
+nexttile
+plot(N_nums.', r_array(:, 7).', 'Linestyle','-','Marker','.')
+hold on
+plot(N_nums.', r_array(:, 8).', 'Linestyle','-','Marker','.')
+plot(N_nums.', r_array(:, 9).', 'Linestyle','-','Marker','.')
+plot(N_nums.', r_array(:, 10).', 'Linestyle','-','Marker','.')
+plot(N_nums.', r_array(:, 11).', 'Linestyle','-','Marker','.')
+legend('A1u','A2u','B1u','B2u','Eu')
+title('Unsolvable wavefunctions')
+xlabel('N')
+ylabel('r')
+hold on 
+yline(0.53, '--', 'r = 0.53', 'HandleVisibility','off')
+ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
 plot(N_nums, r_array(:, 12).', 'Linestyle','-','Marker','.')
@@ -1044,7 +1206,7 @@ ylabel('r')
 hold on 
 yline(0.39, '--', 'r = 0.39', 'HandleVisibility','off')
 ylim([ylow_solv, yhigh_solv])
-set(figure(index_n + 2),'position',[0,100,1000,400])
+set(figure(index_n + 2),'position',[0,100,1500,300])
 saveas(gcf, [folderName '/LSR_plot_combined.jpeg']);
 
 %% Plot proportions of solvable states
@@ -1067,7 +1229,7 @@ save([folderName '/size_array.mat'],'size_array','-v7.3')
 save([folderName '/elevels_a1g.mat'],'elevels_a1g','-v7.3')
 save([folderName '/elevels_a1g_solv_sorted.mat'],'elevels_a1g_solv_sorted','-v7.3')
 save([folderName '/elevels_a1u.mat'],'elevels_a1u','-v7.3')
-save([folderName '/elevels_a1u_solv.mat'],'elevels_a1u_solv','-v7.3')
+save([folderName '/elevels_a1u_solv_sorted.mat'],'elevels_a1u_solv_sorted','-v7.3')
 save([folderName '/elevels_a2g.mat'],'elevels_a2g','-v7.3')
 save([folderName '/elevels_a2u.mat'],'elevels_a2u','-v7.3')
 save([folderName '/elevels_b1g.mat'],'elevels_b1g','-v7.3')
@@ -1078,14 +1240,14 @@ save([folderName '/elevels_eg.mat'],'elevels_eg','-v7.3')
 save([folderName '/elevels_eu.mat'],'elevels_eu','-v7.3')
 
 if (l1_even == false && l2_even)
-    save([folderName 'elevels_b2g_solv_sorted.mat'],'elevels_b2g_solv_sorted','-v7.3')
-    save([folderName 'elevels_b2u_solv.mat'],'elevels_b2u_solv','-v7.3')
+    save([folderName '/elevels_b2g_solv_sorted.mat'],'elevels_b2g_solv_sorted','-v7.3')
+    save([folderName '/elevels_b2u_solv_sorted.mat'],'elevels_b2u_solv_sorted','-v7.3')
 elseif (l1_even && l2_even == false)
-    save([folderName 'elevels_a2u_solv_sorted.mat'],'elevels_a2u_solv_sorted','-v7.3')
-    save([folderName 'elevels_a2g_solv.mat'],'elevels_a2g_solv','-v7.3')
+    save([folderName '/elevels_a2u_solv_sorted.mat'],'elevels_a2u_solv_sorted','-v7.3')
+    save([folderName '/elevels_a2g_solv_sorted.mat'],'elevels_a2g_solv_sorted','-v7.3')
 elseif (l1_even == false && l2_even == false)
-    save([folderName 'elevels_b1u_solv_sorted.mat'],'elevels_b1u_solv_sorted','-v7.3')
-    save([folderName 'elevels_b1g_solv.mat'],'elevels_b1g_solv','-v7.3')
+    save([folderName '/elevels_b1u_solv_sorted.mat'],'elevels_b1u_solv_sorted','-v7.3')
+    save([folderName '/elevels_b1g_solv_sorted.mat'],'elevels_b1g_solv_sorted','-v7.3')
 end
 
 

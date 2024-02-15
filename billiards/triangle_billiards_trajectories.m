@@ -2,20 +2,18 @@
 clear;
 
 % Initial conditions
-x_0 = 1/2;
+x_0 = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2];
 y_0 = 0;
-theta = pi / 2;
-dtheta = 0.01;
-t_total = 10;
-color_list_1 = [0.635, 0.078, 0.184; 0.850, 0.325, 0.098; 0.929, 0.694, 0.125]; % red, orange, yellow
-color_list_2 = [0.466, 0.674, 0.188; 0.000, 0.447, 0.741; 0.494, 0.184, 0.556]; % green, blue, purple
-half_num_lines = 3;
+width = 0.1;
+theta = 2 * pi / 3 ;
+t_total = 3;
+color_list = [0.635, 0.078, 0.184; 0.850, 0.325, 0.098; 0.929, 0.694, 0.125; 0.466, 0.674, 0.188; 0.000, 0.447, 0.741; 0.494, 0.184, 0.556]; % red, orange, yellow, green, blue, purple
+num_lines = 6;
 
 % Length
-for i = 1:half_num_lines
-    billiards(x_0, y_0, theta + dtheta * (i / half_num_lines), t_total, color_list_1(half_num_lines + 1 - i, :))
+for i = 1:num_lines
+    billiards(x_0(i), y_0, theta, t_total, color_list(i, :))
     hold on
-    billiards(x_0, y_0, theta - dtheta * (i / half_num_lines), t_total, color_list_2(i, :))
 end
 hold off
 
