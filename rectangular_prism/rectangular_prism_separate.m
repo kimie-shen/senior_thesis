@@ -6,7 +6,7 @@ tolerance = 1e-8;  % Tolerance for degenerate energy levels
 % Side length ratios
 l1 = 1;
 l2 = 2;
-l3 = 3;
+l3 = 4;
 
 % length parity indicators
 all_same_parity = false;
@@ -400,8 +400,8 @@ for n = 1:size(N_nums, 2)
                 b2u_exp_energies(i) = 2 * N^2 * (2 - cos(pi * n1 / N) - cos(pi * n1 / N));
             end
         end
-    elseif (l2_l3_same_parity == false) % Energies in B1 (l2 and l3 same parity)
-        if (l2_l3_even == true) % In B1g
+    elseif (l2_l3_same_parity == true) % Energies in B1 (l2 and l3 same parity)
+        if (l2_l3_even == false) % In B1g
             b1g_exp_energies = zeros(ceil(N / 2), 1);
             for i = 1:ceil(N / 2)
                 n1 = (i - 1) * 2 + 1;
@@ -1058,7 +1058,7 @@ ylow_solv = 0.35;
 yhigh_solv = 0.6;
 
 nexttile
-plot(N_nums, r_array(:, 2), 'Linestyle','-','Marker','.', [0 0.4470 0.7410])
+plot(N_nums.', r_array(:, 2).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('Ag')
 xlabel('N')
 ylabel('r')
@@ -1067,7 +1067,7 @@ yline(0.53, '--', 'r = 0.53')
 ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 3).', 'Linestyle','-','Marker','.', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 3).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('B1g')
 xlabel('N')
 ylabel('r')
@@ -1076,7 +1076,7 @@ yline(0.53, '--', 'r = 0.53')
 ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 4).', 'Linestyle','-','Marker','.', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 4).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('B2g')
 xlabel('N')
 ylabel('r')
@@ -1085,7 +1085,7 @@ yline(0.53, '--', 'r = 0.53')
 ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 5).', 'Linestyle','-','Marker','.', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 5).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('B3g')
 xlabel('N')
 ylabel('r')
@@ -1094,7 +1094,7 @@ yline(0.53, '--', 'r = 0.53')
 ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 6).', 'Linestyle','-','Marker','.', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 6).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('Au')
 xlabel('N')
 ylabel('r')
@@ -1103,7 +1103,7 @@ yline(0.53, '--', 'r = 0.53')
 ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 7).', 'Linestyle','-','Marker','.', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 7).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('B1u')
 xlabel('N')
 ylabel('r')
@@ -1112,7 +1112,7 @@ yline(0.53, '--', 'r = 0.53')
 ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 8).', 'Linestyle','-','Marker','.', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 8).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('B2u')
 xlabel('N')
 ylabel('r')
@@ -1121,7 +1121,7 @@ yline(0.53, '--', 'r = 0.53')
 ylim([ylow_unsolv, yhigh_unsolv])
 
 nexttile
-plot(N_nums, r_array(:, 9).', 'Linestyle','-','Marker','.', [0 0.4470 0.7410])
+plot(N_nums, r_array(:, 9).', 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('B3u')
 xlabel('N')
 ylabel('r')
@@ -1237,7 +1237,7 @@ else
         ylim([ylow_solv, yhigh_solv])
     end
 
-    set(figure(index_n + 1),'position',[0,100,800,300])
+    set(figure(index_n + 1),'position',[0,100,700,400])
     saveas(gcf, [folderName '/LSR_plot_solv.jpeg']);
 end
 
@@ -1301,9 +1301,9 @@ proportions = sum(solvable_prop, 2);
 plot(N_nums, proportions, 'Linestyle','-','Marker','.')
 title('Proportion of solvable states')
 xlabel('N')
-prop_solvable = 1 / (4 * (l1 * l1 + 2 * l1 * l2));
+prop_solvable = 1 / (4 * (l1 * l2 + l1 * l3 + l2 * l3));
 prop_range = 0.05;
-yline(prop_solvable, '--', ['1/' num2str(4 * (l1 * l1 + 2 * l1 * l2))])
+yline(prop_solvable, '--', ['1/' num2str(4 * (l1 * l2 + l1 * l3 + l2 * l3))])
 ylim([prop_solvable - prop_range, prop_solvable + prop_range])
 ylabel('Proportion')
 set(figure(index_n + 3),'position',[0,100,600,400])
