@@ -4,7 +4,7 @@ close all
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
 
 % Side length ratios
-l1 = 3;
+l1 = 2;
 l2 = 1;
 
 % Is l1 even or not?
@@ -688,8 +688,7 @@ for n = 1:size(N_nums, 2)
             spacings_b1g_solv(i) = abs(elevels_b1g_solv_sorted(i, 1) - elevels_b1g_solv_sorted(i+1, 1));
         end
     end
-
-         
+    
     % Compute level spacing ratios
     r_a1g = LSR(spacings_a1g);
     r_a2g = LSR(spacings_a2g);

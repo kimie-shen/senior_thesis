@@ -17,7 +17,7 @@ max_of_evec = max(eigenvectors(:, index));
 color_indices = ceil((max_of_evec - eigenvectors(:, index)) / (max_of_evec - min_of_evec) * cn);
     
 % Remove zeros from color indices
-for j = 1:(6 * N^2)
+for j = 1:((N + 1)^2)
     if (color_indices(j) == 0)
         color_indices(j) = 1;
     end

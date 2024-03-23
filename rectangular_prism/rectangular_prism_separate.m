@@ -4,8 +4,8 @@ close all
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
 
 % Side length ratios
-l1 = 1;
-l2 = 2;
+l1 = 2;
+l2 = 3;
 l3 = 4;
 
 % length parity indicators
@@ -51,7 +51,7 @@ end
 
 
 % Find max N
-upper_lim = 30000; % Max number of sites allowed in memory
+upper_lim = 32000; % Max number of sites allowed in memory
 max_N = floor(sqrt(upper_lim / (2 * ((l1 * l2) + (l2 * l3) + (l3 * l1)))));
 fprintf(['Max N = ' num2str(max_N) '\n'])
 N_nums = primes(max_N);
@@ -951,7 +951,7 @@ for n = 1:size(N_nums, 2)
     xlabel('Energy spacing')
     ylabel('Counts')
     
-    set(figure(index_n),'position',[0,100,2000,400])
+    set(figure(index_n),'position',[0,100,1300,400])
     saveas(gcf, [folderName '/N=' num2str(N) '_elevel_hist.jpeg']);
 
     % Plot histogram of solvable wavefunctions
