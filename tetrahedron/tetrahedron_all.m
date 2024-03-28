@@ -1,8 +1,8 @@
 % Calculate r values for various N
 clear;
 close all
-tolerance = 1e-6;  % Tolerance for degenerate energy levels
-corner_potential = 1;
+tolerance = 1e-8;  % Tolerance for degenerate energy levels
+corner_potential = 0;
 
 % Find max N
 upper_lim = 30000; % Max number of sites allowed in laptop memory
@@ -10,6 +10,7 @@ max_N = floor(sqrt(upper_lim) - 1);
 fprintf(['Max N = ' num2str(max_N) '\n'])
 N_nums = primes(max_N);
 N_nums = N_nums(4:end);
+N_nums = [31];
 
 r_array = zeros(size(N_nums, 1), 6);
 size_array = zeros(size(N_nums, 1), 6);
@@ -32,24 +33,26 @@ for n = 1:size(N_nums, 2)
 
     % Generate Hamiltonian matrix
     L = 1/N; % Spacing
+    onSiteHopping = 4 / L^2;
+    neighborHopping = 4 / (3 * L^2);
     H = zeros((N + 1)^2, (N + 1)^2); % Hamiltonian matrix
     
     for i = 1:(N + 1)^2
         %fprintf([num2str(i) ' '])
-        H(i, i) = 4/L^2;
+        H(i, i) = onSiteHopping;
         %fprintf([num2str(right(i, N)) ' '])
-        H(i, right(i, N)) = -(1 + 2/sqrt(3))/L^2;
+        H(i, right(i, N)) = -neighborHopping;
         %fprintf([num2str(left(i, N)) ' '])
-        H(i, left(i, N)) = -(1 + 2/sqrt(3))/L^2;
+        H(i, left(i, N)) = -neighborHopping;
         if (has_upper(i, N))
             %fprintf('upper ')
         end
         if (has_upper(i, N))
             %fprintf([num2str(upper(i, N)) ' \n'])
-            H(i, upper(i, N)) = -(1 + 2/sqrt(3))/L^2;
+            H(i, upper(i, N)) = -neighborHopping;
         else
             %fprintf([num2str(lower(i, N)) ' \n'])
-            H(i, lower(i, N)) = -(1 + 2/sqrt(3))/L^2;
+            H(i, lower(i, N)) = -neighborHopping;
         end
     end
 

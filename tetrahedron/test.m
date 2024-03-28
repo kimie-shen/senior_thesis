@@ -10,8 +10,8 @@ y = [1, 1, 1, 1, 1, 2, 2, 2, 3];
 %index = [1, 2, 4, 5, 7, 9, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 65, 67, 70];
 index = [3, 6, 8, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 64, 66, 68, 69, 71, 72];
 
-for i = 1:total
-    fprintf([num2str(i) ' '  mat2str(inv_index(i, N)) '\n'])
+for i = 1:size(index, 2)
+    fprintf([num2str(index(i)) ' '  mat2str(lower(index(i), N)) '\n'])
 end
 
 % Given index on discretized octahedron returns new index after C3 symmetry

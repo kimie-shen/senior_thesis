@@ -1,7 +1,7 @@
 %% Plot ten tetrahedron eigenvectors
 
 % Plot tetrahedron eigenvectors
-N = 173;
+N = 83;
 index = 50;
 
 X = zeros((N + 1)^2, 1);
@@ -22,10 +22,10 @@ end
 
 
 % Plot the eigenvector
-folderName = 'tetra_sigma_d_evecs';
+folderName = 'tetra_sigma_d_evecs_2';
 mkdir(folderName);
 
-for k = 0:100
+for k = 0:3
     start_index = k * 10 + 1;
     end_index = start_index + 9;
     
