@@ -158,21 +158,31 @@ for n = 1:size(N_nums, 2)
         eigenvalues(i, i) = eigenvalues(i, i) - ((1 + sqrt(5))/2) * c2x_evals(i);
     end
     fprintf('c2x done \n')
+
+    % Determine 1/3rd of max energy
+    max_energy = eigenvalues(total_sites, total_sites);
+    max_energy_index = 0;
+
+    for i = 1:total_sites
+        if (eigenvalues(i, i) < max_energy / 3.1)
+            max_energy_index = max_energy_index + 1;
+        end
+    end
     
     % Find c2y eigenvalues
-    for i = 1:(total_sites)
+    for i = 1:max_energy_index
         c2y_evals(i) = (eigenvectors(:, i).' * C2y * eigenvectors(:, i));
     end
     fprintf('c2y done \n')
 
     % Find c2z eigenvalues
-    for i = 1:(total_sites)
+    for i = 1:max_energy_index
         c2z_evals(i) = (eigenvectors(:, i).' * C2z * eigenvectors(:, i));
     end
     fprintf('c2z done \n')
 
     % Find inv eigenvalues
-    for i = 1:(total_sites)
+    for i = 1:max_energy_index
         inv_evals(i) = (eigenvectors(:, i).' * inv * eigenvectors(:, i));
     end
     fprintf('inv done \n')
@@ -180,7 +190,7 @@ for n = 1:size(N_nums, 2)
     
     %% Analyze Degeneracies
     % Reorder energies and evecs
-    energy_levels = zeros(total_sites, 7);
+    energy_levels = zeros(max_energy_index, 7);
     [energies, id] = sort(diag(eigenvalues));
     eigenvectors = eigenvectors(:, id);
     c2x_evals_sorted = c2x_evals(id);
@@ -197,7 +207,7 @@ for n = 1:size(N_nums, 2)
     trace_c2z = c2z_evals_sorted(1);
     trace_inv = inv_evals_sorted(1);
 
-    for i = 2:(total_sites)
+    for i = 2:max_energy_index
         if (abs(energies(i) - energy) < tolerance) % Next energy is degenerate
             degeneracy = degeneracy + 1;
             trace_c2x = trace_c2x + c2x_evals_sorted(i);
@@ -225,7 +235,7 @@ for n = 1:size(N_nums, 2)
         end
     
         % Record energy level if we reach the end
-        if (i == total_sites)
+        if (i == max_energy_index)
             energy_levels(index, 1) = energy;
             energy_levels(index, 2) = degeneracy;
             energy_levels(index, 3) = trace_c2x;
@@ -241,28 +251,28 @@ for n = 1:size(N_nums, 2)
     
     %% Separate the representation classes
     % Allocate space for each irrep
-    elevels_ag = zeros(total_sites, 7);
-    elevels_b1g = zeros(total_sites, 7);
-    elevels_b2g = zeros(total_sites, 7);
-    elevels_b3g = zeros(total_sites, 7);
-    elevels_au = zeros(total_sites, 7);
-    elevels_b1u = zeros(total_sites, 7);
-    elevels_b2u = zeros(total_sites, 7);
-    elevels_b3u = zeros(total_sites, 7);
+    elevels_ag = zeros(max_energy_index, 7);
+    elevels_b1g = zeros(max_energy_index, 7);
+    elevels_b2g = zeros(max_energy_index, 7);
+    elevels_b3g = zeros(max_energy_index, 7);
+    elevels_au = zeros(max_energy_index, 7);
+    elevels_b1u = zeros(max_energy_index, 7);
+    elevels_b2u = zeros(max_energy_index, 7);
+    elevels_b3u = zeros(max_energy_index, 7);
 
     % Allocate space for solvable elevels
-    elevels_ag_solv = zeros(total_sites, 7);
-    elevels_au_solv = zeros(total_sites, 7);
+    elevels_ag_solv = zeros(max_energy_index, 7);
+    elevels_au_solv = zeros(max_energy_index, 7);
 
     if (l1_l2_same_parity == true)
-        elevels_b3g_solv = zeros(total_sites, 7);
-        elevels_b3u_solv = zeros(total_sites, 7);
+        elevels_b3g_solv = zeros(max_energy_index, 7);
+        elevels_b3u_solv = zeros(max_energy_index, 7);
     elseif (l1_l3_same_parity == true)
-        elevels_b2g_solv = zeros(total_sites, 7);
-        elevels_b2u_solv = zeros(total_sites, 7);
+        elevels_b2g_solv = zeros(max_energy_index, 7);
+        elevels_b2u_solv = zeros(max_energy_index, 7);
     elseif (l2_l3_same_parity == true)
-        elevels_b1g_solv = zeros(total_sites, 7);
-        elevels_b1u_solv = zeros(total_sites, 7);
+        elevels_b1g_solv = zeros(max_energy_index, 7);
+        elevels_b1u_solv = zeros(max_energy_index, 7);
     end
 
     % Set indices

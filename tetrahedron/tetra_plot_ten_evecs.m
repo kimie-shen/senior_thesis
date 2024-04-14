@@ -1,7 +1,7 @@
 %% Plot ten tetrahedron eigenvectors
 
 % Plot tetrahedron eigenvectors
-N = 83;
+%N = 31;
 index = 50;
 
 X = zeros((N + 1)^2, 1);
@@ -15,17 +15,17 @@ for i = 1:(N + 1)^2
     row_num = ceil((N + 1) - sqrt((N + 1)^2 - i));
     rows_above = (N + 1) - row_num;
     %fprintf([num2str(i) ' ' num2str(rows_above) '\n'])
-    fprintf([num2str(i) ' ' num2str(i - ((N + 1)^2 - (rows_above + 1)^2)) '\n'])
+    %fprintf([num2str(i) ' ' num2str(i - ((N + 1)^2 - (rows_above + 1)^2)) '\n'])
     Y(i, 1) = (row_num - 1) * a * sqrt(3);
     X(i, 1) = -1 + (row_num - 1) * a + (i - ((N + 1)^2 - (rows_above + 1)^2) - 1) * a;
 end
 
 
 % Plot the eigenvector
-folderName = 'tetra_sigma_d_evecs_2';
+folderName = 'tetra_sigma_d_evecs_3';
 mkdir(folderName);
 
-for k = 0:3
+for k = 0:20
     start_index = k * 10 + 1;
     end_index = start_index + 9;
     

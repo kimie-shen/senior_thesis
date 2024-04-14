@@ -3,6 +3,7 @@ clear;
 close all
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
 corner_potential = 0;
+e_cut_factor = 3;
 
 % Find max N
 upper_lim = 30000; % Max number of sites allowed in laptop memory
@@ -10,14 +11,14 @@ max_N = floor(sqrt(upper_lim) - 1);
 fprintf(['Max N = ' num2str(max_N) '\n'])
 N_nums = primes(max_N);
 N_nums = N_nums(4:end);
-N_nums = [31];
+%N_nums = [71];
 
 r_array = zeros(size(N_nums, 1), 6);
 size_array = zeros(size(N_nums, 1), 6);
 solvable_prop = zeros(size(N_nums, 1), 2);
 
 % Make directory
-folderName = 'tetrahedron_plots';
+folderName = ['tetrahedron_plots_E_ecut=' num2str(e_cut_factor)];
 mkdir(folderName);
 
 index_n = 1;
@@ -26,6 +27,7 @@ index_size = 1;
 
 for n = 1:size(N_nums, 2)
     N = N_nums(n);
+    total_sites = (N + 1)^2;
 
     %% Diagonalize H and sigma_d matrices
     tic;
@@ -67,9 +69,9 @@ for n = 1:size(N_nums, 2)
 
         %fprintf([num2str(lower_left_corner) ' ' num2str(lower_right_corner) ' ' num2str(top_corner) '\n'])
 
-        H(lower_left_corner, lower_left_corner) = corner_potential; 
-        H(lower_right_corner, lower_right_corner) = corner_potential;
-        H(top_corner, top_corner) = corner_potential;
+        H(lower_left_corner, lower_left_corner) = H(lower_left_corner, lower_left_corner) + corner_potential; 
+        H(lower_right_corner, lower_right_corner) = H(lower_right_corner, lower_right_corner) + corner_potential;
+        H(top_corner, top_corner) = H(top_corner, top_corner) + corner_potential;
     end
 
     % Face 2
@@ -77,9 +79,9 @@ for n = 1:size(N_nums, 2)
     top_right_corner = index_from_coord(N, (N + 1) / 2, 2, N);
     top_left_corner = index_from_coord(1, (N + 1) / 2, 2, N);
 
-    H(bottom_corner, bottom_corner) = corner_potential; 
-    H(top_right_corner, top_right_corner) = corner_potential;
-    H(top_left_corner, top_left_corner) = corner_potential;
+    H(bottom_corner, bottom_corner) = H(bottom_corner, bottom_corner) + corner_potential; 
+    H(top_right_corner, top_right_corner) = H(top_right_corner, top_right_corner) + corner_potential;
+    H(top_left_corner, top_left_corner) = H(top_left_corner, top_left_corner) + corner_potential;
 
     %fprintf([num2str(bottom_corner) ' ' num2str(top_right_corner) ' ' num2str(top_left_corner) '\n'])
 
@@ -115,24 +117,35 @@ for n = 1:size(N_nums, 2)
     
     %% Calculate characters of symmetries
     tic;
+
+    % Determine 1/3rd of max energy
+    max_energy = eigenvalues(total_sites, total_sites);
+    max_energy_index = 0;
+
+    for i = 1:total_sites
+        if (eigenvalues(i, i) < max_energy / e_cut_factor)
+            max_energy_index = max_energy_index + 1;
+        end
+    end
+
     % Preallocate data array
     sigma2_evals = zeros((N + 1)^2, 1);
     c3_evals = zeros((N + 1)^2, 1);
     c2_evals = zeros((N + 1)^2, 1);
     
     
-    for i = 1:((N + 1)^2)
+    for i = 1:max_energy_index
         sigma2_evals(i) = (eigenvectors(:, i).' * sigma_d * eigenvectors(:, i));
         eigenvalues(i, i) = eigenvalues(i, i) - ((1 + sqrt(5))/2) * sigma2_evals(i);
     end
     fprintf('sigma_d done \n')
     
-    for i = 1:((N + 1)^2)
+    for i = 1:max_energy_index
         c3_evals(i) = (eigenvectors(:, i).' * C3 * eigenvectors(:, i));
     end
     fprintf('c3 done \n')
 
-    for i = 1:((N + 1)^2)
+    for i = 1:max_energy_index
         c2_evals(i) = (eigenvectors(:, i).' * C2 * eigenvectors(:, i));
     end
     fprintf('c2 done \n')
@@ -141,7 +154,7 @@ for n = 1:size(N_nums, 2)
     
     %% Analyze Degeneracies
     % Reorder energies and evecs
-    energy_levels = zeros((N + 1)^2, 6);
+    energy_levels = zeros(max_energy_index, 6);
     [energies, id] = sort(diag(eigenvalues));
     eigenvectors = eigenvectors(:, id);
     sigma2_evals_sorted = sigma2_evals(id);
@@ -156,7 +169,7 @@ for n = 1:size(N_nums, 2)
     trace_c3 = c3_evals_sorted(1);
     trace_c2 = c2_evals_sorted(1);
     
-    for i = 2:((N + 1)^2)
+    for i = 2:max_energy_index
         if (abs(energies(i) - energy) < tolerance) % Next energy is degenerate
             degeneracy = degeneracy + 1;
             trace_sigma2 = trace_sigma2 + sigma2_evals_sorted(i);
@@ -181,7 +194,7 @@ for n = 1:size(N_nums, 2)
         end
     
         % Record energy level if we reach the end
-        if (i == (N + 1)^2)
+        if (i == max_energy_index)
             energy_levels(index, 1) = energy;
             energy_levels(index, 2) = degeneracy;
             energy_levels(index, 3) = trace_sigma2;
@@ -195,11 +208,11 @@ for n = 1:size(N_nums, 2)
     
     %% Separate the representation classes
     % Allocate space for each irrep
-    elevels_a1 = zeros((N + 1)^2, 6);
-    elevels_a2 = zeros((N + 1)^2, 6);
-    elevels_e = zeros((N + 1)^2, 6);
-    elevels_t1 = zeros((N + 1)^2, 6);
-    elevels_t2 = zeros((N + 1)^2, 6);
+    elevels_a1 = zeros(max_energy_index, 6);
+    elevels_a2 = zeros(max_energy_index, 6);
+    elevels_e = zeros(max_energy_index, 6);
+    elevels_t1 = zeros(max_energy_index, 6);
+    elevels_t2 = zeros(max_energy_index, 6);
     
     index_a1 = 1;
     index_a2 = 1;
@@ -237,29 +250,29 @@ for n = 1:size(N_nums, 2)
         elseif (isequal(traces, [3, 1, 0, -1])) %T2
             elevels_t2(index_t2, :) = energy_levels_rounded(i, :);
             index_t2 = index_t2 + 1;
-        %elseif (isequal(traces, [6, 0, 0, -2])) % Accidental degeneracy T1 + T2
-            %elevels_t1(index_t1, :) = energy_levels_rounded(i, :);
-            %index_t1 = index_t1 + 1;
-            %elevels_t2(index_t2, :) = energy_levels_rounded(i, :); 
-            %index_t2 = index_t2 + 1;
-        %elseif (isequal(traces, [3, 1, 0, 3])) % Accidental degeneracy E + A1
+        %elseif (isequal(traces, [3, -1, 0, 3])) % Accidental degeneracy E + A2
             %elevels_e(index_e, :) = energy_levels_rounded(i, :);
             %index_e = index_e + 1;
-            %elevels_a1(index_a1, :) = energy_levels_rounded(i, :); 
-            %index_a1 = index_a1 + 1;
-        elseif (isequal(traces, [3, -1, 0, 3])) % Accidental degeneracy E + A2
-            elevels_e(index_e, :) = energy_levels_rounded(i, :);
-            index_e = index_e + 1;
-            elevels_a2(index_a2, :) = energy_levels_rounded(i, :); 
-            index_a2 = index_a2 + 1;
-        %elseif (isequal(traces, [6, 0, 0, 6])) % Accidental degeneracy 2E + A1 + A2
-            %elevels_e(index_e, :) = energy_levels_rounded(i, :);
-            %elevels_e(index_e + 1, :) = energy_levels_rounded(i, :);
-            %index_e = index_e + 2;
-            %elevels_a1(index_a1, :) = energy_levels_rounded(i, :); 
-            %index_a1 = index_a1 + 1;
             %elevels_a2(index_a2, :) = energy_levels_rounded(i, :); 
             %index_a2 = index_a2 + 1;
+        elseif (isequal(traces, [3, 1, 0, 3])) % Accidental degeneracy E + A1
+            elevels_e(index_e, :) = energy_levels_rounded(i, :);
+            index_e = index_e + 1;
+            elevels_a1(index_a1, :) = energy_levels_rounded(i, :); 
+            index_a1 = index_a1 + 1;
+        elseif (isequal(traces, [6, 0, 0, -2])) % Accidental degeneracy T1 + T2
+            elevels_t1(index_t1, :) = energy_levels_rounded(i, :);
+            index_t1 = index_t1 + 1;
+            elevels_t2(index_t2, :) = energy_levels_rounded(i, :); 
+            index_t2 = index_t2 + 1;
+        elseif (isequal(traces, [6, 0, 0, 6])) % Accidental degeneracy 2E + A1 + A2
+            elevels_e(index_e, :) = energy_levels_rounded(i, :);
+            %elevels_e(index_e + 1, :) = energy_levels_rounded(i, :);
+            index_e = index_e + 1;
+            elevels_a1(index_a1, :) = energy_levels_rounded(i, :); 
+            index_a1 = index_a1 + 1;
+            elevels_a2(index_a2, :) = energy_levels_rounded(i, :); 
+            index_a2 = index_a2 + 1;
         else 
             fprintf([num2str(energy_levels_rounded(i, 1)) ' ' num2str(energy_levels_rounded(i, 2)) ' ' ...
                 num2str(energy_levels_rounded(i, 3)) ' ' num2str(energy_levels_rounded(i, 4)) ' ' ...
@@ -415,7 +428,7 @@ title('E')
 xlabel('N')
 ylabel('r')
 hold on 
-yline(0.53, '--', 'r = 0.53')
+yline(0.39, '--', 'r = 0.39')
 ylim([ylow, yhigh])
 
 nexttile
@@ -424,7 +437,7 @@ title('T1')
 xlabel('N')
 ylabel('r')
 hold on 
-yline(0.53, '--', 'r = 0.53')
+yline(0.39, '--', 'r = 0.39')
 ylim([ylow, yhigh])
 
 nexttile
@@ -433,7 +446,7 @@ title('T2')
 xlabel('N')
 ylabel('r')
 hold on 
-yline(0.53, '--', 'r = 0.53')
+yline(0.39, '--', 'r = 0.39')
 ylim([ylow, yhigh])
 
 set(figure(index_n),'position',[0,100,1500,200])

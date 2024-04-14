@@ -27,7 +27,7 @@ N_nums = primes(max_N);
 N_nums = N_nums(4:end);
 
 % Make directory
-folderName = ['square_prism_l1=' num2str(l1) '_l2=' num2str(l2) '_separated'];
+folderName = ['square_prism_l1=' num2str(l1) '_l2=' num2str(l2) '_separated_cut_energy'];
 mkdir(folderName);
 
 % Set indices
@@ -102,27 +102,37 @@ for n = 1:size(N_nums, 2)
     inv_evals = zeros(total_sites, 1);
     c2_o_evals = zeros(total_sites, 1);
     
-    % Find inv eigenvalues
-    for i = 1:(total_sites)
-        inv_evals(i) = (eigenvectors(:, i).' * inv * eigenvectors(:, i));
-    end
-    fprintf('inv done \n')
-    
     % Find energy and sigma_d eigenvluaes
     for i = 1:(total_sites)
         sigma_d_evals(i) = (eigenvectors(:, i).' * sigma_d * eigenvectors(:, i));
         eigenvalues(i, i) = eigenvalues(i, i) - ((1 + sqrt(5))/2) * sigma_d_evals(i);
     end
     fprintf('sigma_d done \n')
+
+    % Determine 1/3rd of max energy
+    max_energy = eigenvalues(total_sites, total_sites);
+    max_energy_index = 0;
+
+    for i = 1:total_sites
+        if (eigenvalues(i, i) < max_energy / 2)
+            max_energy_index = max_energy_index + 1;
+        end
+    end
+
+     % Find inv eigenvalues
+    for i = 1:max_energy_index
+        inv_evals(i) = (eigenvectors(:, i).' * inv * eigenvectors(:, i));
+    end
+    fprintf('inv done \n')
     
     % Find c2_oo eigenvalues
-    for i = 1:(total_sites)
+    for i = 1:max_energy_index
         c2_oo_evals(i) = (eigenvectors(:, i).' * C2_oo * eigenvectors(:, i));
     end
     fprintf('c2_oo done \n')
     
     % Find c2_o eigenvalues
-    for i = 1:(total_sites)
+    for i = 1:max_energy_index
         c2_o_evals(i) = (eigenvectors(:, i).' * C2_o * eigenvectors(:, i));
     end
     fprintf('c2_o done \n')
@@ -130,7 +140,7 @@ for n = 1:size(N_nums, 2)
     
     %% Analyze Degeneracies
     % Reorder energies and evecs
-    energy_levels = zeros(total_sites, 7);
+    energy_levels = zeros(max_energy_index, 7);
     [energies, id] = sort(diag(eigenvalues));
     eigenvectors = eigenvectors(:, id);
     sigma_d_evals_sorted = sigma_d_evals(id);
@@ -147,7 +157,7 @@ for n = 1:size(N_nums, 2)
     trace_inv = inv_evals_sorted(1);
     trace_c2_o = c2_o_evals_sorted(1);
     
-    for i = 2:(total_sites)
+    for i = 2:max_energy_index
         if (abs(energies(i) - energy) < tolerance) % Next energy is degenerate
             degeneracy = degeneracy + 1;
             trace_sigma_d = trace_sigma_d + sigma_d_evals_sorted(i);
@@ -175,7 +185,7 @@ for n = 1:size(N_nums, 2)
         end
     
         % Record energy level if we reach the end
-        if (i == total_sites)
+        if (i == max_energy_index)
             energy_levels(index, 1) = energy;
             energy_levels(index, 2) = degeneracy;
             energy_levels(index, 3) = trace_c2_oo;
@@ -191,30 +201,30 @@ for n = 1:size(N_nums, 2)
     
     %% Separate the representation classes
     % Allocate space for each irrep
-    elevels_a1g = zeros(total_sites, 7);
-    elevels_a2g = zeros(total_sites, 7);
-    elevels_b1g = zeros(total_sites, 7);
-    elevels_b2g = zeros(total_sites, 7);
-    elevels_eg = zeros(total_sites, 7);
-    elevels_a1u = zeros(total_sites, 7);
-    elevels_a2u = zeros(total_sites, 7);
-    elevels_b1u = zeros(total_sites, 7);
-    elevels_b2u = zeros(total_sites, 7);
-    elevels_eu = zeros(total_sites, 7);
+    elevels_a1g = zeros(max_energy_index, 7);
+    elevels_a2g = zeros(max_energy_index, 7);
+    elevels_b1g = zeros(max_energy_index, 7);
+    elevels_b2g = zeros(max_energy_index, 7);
+    elevels_eg = zeros(max_energy_index, 7);
+    elevels_a1u = zeros(max_energy_index, 7);
+    elevels_a2u = zeros(max_energy_index, 7);
+    elevels_b1u = zeros(max_energy_index, 7);
+    elevels_b2u = zeros(max_energy_index, 7);
+    elevels_eu = zeros(max_energy_index, 7);
 
     % Allocate space for solvable elevels
-    elevels_a1g_solv = zeros(total_sites, 7);
-    elevels_a1u_solv = zeros(total_sites, 7);
+    elevels_a1g_solv = zeros(max_energy_index, 7);
+    elevels_a1u_solv = zeros(max_energy_index, 7);
 
     if (l1_even == false && l2_even == true)
-        elevels_b2g_solv = zeros(total_sites, 7);
-        elevels_b2u_solv = zeros(total_sites, 7);
+        elevels_b2g_solv = zeros(max_energy_index, 7);
+        elevels_b2u_solv = zeros(max_energy_index, 7);
     elseif (l1_even == true && l2_even == false)
-        elevels_a2g_solv = zeros(total_sites, 7);
-        elevels_a2u_solv = zeros(total_sites, 7);
+        elevels_a2g_solv = zeros(max_energy_index, 7);
+        elevels_a2u_solv = zeros(max_energy_index, 7);
     elseif (l1_even == false && l2_even == false)
-        elevels_b1g_solv = zeros(total_sites, 7);
-        elevels_b1u_solv = zeros(total_sites, 7);
+        elevels_b1g_solv = zeros(max_energy_index, 7);
+        elevels_b1u_solv = zeros(max_energy_index, 7);
     end
 
     % Set indices

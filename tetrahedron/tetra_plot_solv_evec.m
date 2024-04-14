@@ -1,9 +1,8 @@
 %% Plot ten tetrahedron eigenvectors
-clear;
 % Plot tetrahedron eigenvectors
 N = 150;
-n1 = 1;
-n2 = 9;
+n1 = 4;
+n2 = 8;
 
 n3 = 0;
 n4 = 2;
@@ -62,7 +61,9 @@ y_f1_all = @(x,y) y_f1(x,y) + y_C3_f1(x,y) + y_C3_C3_f1(x,y);
 
 Z = zeros((N + 1)^2, 1);
 for i = 1:((N + 1)^2)
-    Z(i) = f1_all(X(i), Y(i)) - y_f1_all(X(i), Y(i));
+    %Z(i) = f1_all(X(i), Y(i));
+    %Z(i) = y_f1_all(X(i), Y(i));
+    Z(i) = -f1_all(X(i), Y(i)) - y_f1_all(X(i), Y(i));
 end
 
     

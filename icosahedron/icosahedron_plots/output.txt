@@ -1,0 +1,188 @@
+>> icosahedron_all
+Max N = 76
+Warning: Directory already exists. 
+> In icosahedron_all (line 18) 
+
+    N = 11
+evals and evecs done 
+Elapsed time is 0.237871 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 0.437530 seconds.
+322.6667 30 2 0 5 -6
+645.3333 30 2 0 5 6
+961.2704 2 2 0 0 -1
+
+    N = 13
+evals and evecs done 
+Elapsed time is 0.092289 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 0.776646 seconds.
+1345.0062 2 2 0 0 -1
+
+    N = 17
+evals and evecs done 
+Elapsed time is 0.350299 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 5.231219 seconds.
+
+    N = 19
+evals and evecs done 
+Elapsed time is 0.550621 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 10.131951 seconds.
+962.6667 54 2 0 9 -6
+1925.3333 54 2 0 9 6
+2880.521 2 2 0 0 -1
+
+    N = 23
+evals and evecs done 
+Elapsed time is 1.707452 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 39.955456 seconds.
+1410.6667 66 2 0 11 6
+2821.3333 66 2 0 11 -6
+
+    N = 29
+evals and evecs done 
+Elapsed time is 8.575335 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 144.016525 seconds.
+
+    N = 31
+evals and evecs done 
+Elapsed time is 14.036229 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 231.354674 seconds.
+2562.6667 90 2 0 15 6
+5125.3333 90 2 0 15 -6
+
+    N = 37
+evals and evecs done 
+Elapsed time is 35.762591 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 589.460840 seconds.
+10943.9757 2 2 0 0 -1
+
+    N = 41
+evals and evecs done 
+Elapsed time is 37.572989 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 804.911922 seconds.
+
+    N = 43
+evals and evecs done 
+Elapsed time is 47.821478 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 1066.161671 seconds.
+4930.6667 126 2 0 21 -6
+9861.3333 126 2 0 21 6
+14783.893 2 2 0 0 -1
+
+    N = 47
+evals and evecs done 
+Elapsed time is 84.479183 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 1801.205185 seconds.
+3734.533 3 1 3 3 1
+5890.6667 138 2 0 23 6
+11781.3333 138 2 0 23 -6
+13937.467 3 1 3 3 1
+
+    N = 53
+evals and evecs done 
+Elapsed time is 146.570914 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 3638.465664 seconds.
+
+    N = 59
+evals and evecs done 
+Elapsed time is 263.119226 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 6811.190477 seconds.
+6414.1649 3 1 3 3 1
+7360.1635 4 0 4 4 0
+9282.6667 174 2 0 29 -6
+11055.4982 3 -1 3 3 -1
+16792.5018 3 1 3 3 1
+18565.3333 174 2 0 29 6
+20487.8365 4 0 4 4 0
+21433.8351 3 -1 3 3 -1
+
+    N = 61
+evals and evecs done 
+Elapsed time is 332.275043 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 9302.102910 seconds.
+
+    N = 67
+evals and evecs done 
+Elapsed time is 1141.489516 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 17979.042419 seconds.
+11970.6667 198 2 0 33 -6
+23941.3333 198 2 0 33 6
+
+    N = 71
+evals and evecs done 
+Elapsed time is 1333.378020 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 20453.355085 seconds.
+13442.6667 210 2 0 35 6
+26885.3333 210 2 0 35 -6
+
+    N = 73
+evals and evecs done 
+Elapsed time is 1049.945815 seconds.
+sigma_d done 
+inv done 
+c3 done 
+inv done 
+Elapsed time is 26015.725773 seconds.
