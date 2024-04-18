@@ -3,6 +3,7 @@ clear;
 close all
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
 corner_potential = 0;
+e_cut_factor
 
 % Find max N
 upper_lim = 30000; % Max number of sites allowed in laptop memory
@@ -10,15 +11,15 @@ max_N = floor(sqrt(upper_lim / 2) - 1);
 fprintf(['Max N = ' num2str(max_N) '\n'])
 N_nums = primes(max_N);
 N_nums = N_nums(5:end);
-N_nums = [131];
+%N_nums = [131];
 
 % Make directory
-folderName = 'octahedron_plots';
+folderName = 'octahedron_plots_ecut=3';
 mkdir(folderName);
 
 r_array = zeros(size(N_nums, 1), 11);
 size_array = zeros(size(N_nums, 1), 11);
-solvable_prop = zeros(size(N_nums, 1), 4);
+solvable_prop = zeros(size(N_nums, 1), 6);
 
 index_n = 1;
 index_r = 1;
@@ -309,11 +310,11 @@ for n = 1:size(N_nums, 2)
             index_a1g = index_a1g + 1;
             elevels_a2g(index_a2g, :) = energy_levels_rounded(i, :);
             index_a2g = index_a2g + 1;
-        elseif (isequal(traces, [2, 0, 2, -2, 0])) % Accidental degeneracy A1u + A2u
-            elevels_a1u(index_a1u, :) = energy_levels_rounded(i, :);
-            index_a1u = index_a1u + 1;
-            elevels_a2u(index_a2u, :) = energy_levels_rounded(i, :);
-            index_a2u = index_a2u + 1;
+        %elseif (isequal(traces, [2, 0, 2, -2, 0])) % Accidental degeneracy A1u + A2u
+            %elevels_a1u(index_a1u, :) = energy_levels_rounded(i, :);
+            %index_a1u = index_a1u + 1;
+            %elevels_a2u(index_a2u, :) = energy_levels_rounded(i, :);
+            %index_a2u = index_a2u + 1;
         elseif (isequal(traces, [2, 2, 2, 0, 0])) % Accidental degeneracy A1g + A2u
             elevels_a1g(index_a1g, :) = energy_levels_rounded(i, :);
             index_a1g = index_a1g + 1;
@@ -442,7 +443,7 @@ for n = 1:size(N_nums, 2)
         size(elevels_eu, 1), size(elevels_t1u, 1), size(elevels_t2u, 1)];
 
     % Find proportion of solvable states
-    solvable_prop(index_size, :) = [size(elevels_a1g, 1), size(elevels_a2g, 1), size(elevels_a1u, 1), size(elevels_a2u, 1)] / (2 * (N + 1)^2);
+    solvable_prop(index_size, :) = [size(elevels_a1g, 1), size(elevels_a2g, 1), size(elevels_a1u, 1), size(elevels_a2u, 1), size(elevels_eg, 1), size(elevels_eu, 1)] / (2 * (N + 1)^2);
 
     %% Plot the level spacings histogram and show r values
     % Plot histograms
@@ -629,14 +630,36 @@ set(figure(index_n),'position',[0,100,3000,400])
 saveas(gcf, [folderName '/LSR_plot.jpeg']);
 
 %% Plot proportions of solvable states
+
+
+% one-dimensional irreps
+prop_1d_irreps = zeros(size(size_array, 1), 1);
+prop_2d_irreps = zeros(size(size_array, 1), 1);
+
+for i = 1:size(size_array, 1)
+    total = size_array(i, 2) + size_array(i, 3) + size_array(i, 7) + size_array(i, 8) + ...
+        2 * (size_array(i, 4) + size_array(i, 9)) + 3 * (size_array(i, 5) + size_array(i, 6) + size_array(i, 10) + size_array(i, 11));
+    prop_1d_irreps(i) = (size_array(i, 2) + size_array(i, 3) + size_array(i, 7) + size_array(i, 8)) / total;
+    prop_2d_irreps(i) = 2 * (size_array(i, 4) + size_array(i, 9)) / total;
+end
 figure(index_n + 1)
-plot(N_nums, sum(solvable_prop, 2), 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, prop_1d_irreps, 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+title('Proportion of solvable states in 1D irreps')
+xlabel('N')
+yline(1/12, '--', '1/12')
+ylim([0.07, 0.095])
+ylabel('Proportion')
+saveas(gcf, [folderName '/solv_prop_1d.jpeg']);
+
+figure(index_n + 2)
+plot(N_nums, prop_1d_irreps, 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('Proportion of states which are solvable')
 xlabel('N')
-yline(1/8, '--', '1/8')
-ylim([0.1, 0.15])
+yline(1/12, '--', '1/12')
+ylim([0.07, 0.095])
 ylabel('Proportion')
-saveas(gcf, [folderName '/solv_prop.jpeg']);
+saveas(gcf, [folderName '/solv_prop_1d.jpeg']);
+
 
 %% Save variables
 save([folderName '/r_array.mat'],'r_array','-v7.3')
