@@ -25,7 +25,7 @@ index_n = 1;
 index_r = 1;
 index_size = 1;
 
-
+%% Start loop
 for n = 1:size(N_nums, 2)
     N = N_nums(n);
     total_sites = 5 * (N + 1)^2;
@@ -149,7 +149,7 @@ for n = 1:size(N_nums, 2)
     for i = 1:max_energy_index
         c5_evals(i) = (eigenvectors(:, i).' * C5 * eigenvectors(:, i));
     end
-    fprintf('inv done \n')
+    fprintf('c5 done \n')
     
     for i = 1:max_energy_index
         c3_evals(i) = (eigenvectors(:, i).' * C3 * eigenvectors(:, i));
@@ -541,7 +541,7 @@ title('T1g')
 xlabel('N')
 ylabel('r')
 hold on 
-yline(0.39, '--', 'r = 0.39')
+yline(0.53, '--', 'r = 0.53')
 ylim([ylow, yhigh])
 
 nexttile
@@ -586,7 +586,7 @@ title('T1u')
 xlabel('N')
 ylabel('r')
 hold on 
-yline(0.39, '--', 'r = 0.39')
+yline(0.53, '--', 'r = 0.53')
 ylim([ylow, yhigh])
 
 nexttile
@@ -620,12 +620,24 @@ set(figure(index_n),'position',[0,100,3000,400])
 saveas(gcf, [folderName '/LSR_plot.jpeg']);
 
 %% Plot proportions of solvable states
+
+% one-dimensional irreps
+prop_1d_irreps = zeros(size(size_array, 1), 1);
+
+for i = 1:size(size_array, 1)
+    total = size_array(i, 2) + size_array(i, 7)...
+        + 3 * (size_array(i, 3) + size_array(i, 4) + size_array(i, 8) + size_array(i, 9)) ...
+        + 4 * (size_array(i, 5) + size_array(i, 10)) ...
+        + 5 * (size_array(i, 6) + size_array(i, 11));
+    prop_1d_irreps(i) = (size_array(i, 2) + size_array(i, 7)) / total;
+end
+
 figure(index_n + 1)
-plot(N_nums, sum(solvable_prop, 2), 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+plot(N_nums, prop_1d_irreps, 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('Proportion of states which are solvable')
 xlabel('N')
-yline(1/12, '--', '1/12')
-ylim([0.0, 0.1])
+yline(1/60, '--', '1/60')
+ylim([0.012, 0.021])
 ylabel('Proportion')
 saveas(gcf, [folderName '/solv_prop.jpeg']);
 

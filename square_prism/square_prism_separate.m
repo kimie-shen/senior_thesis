@@ -2,10 +2,11 @@
 clear;
 close all
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
+ecut_factor = 1;
 
 % Side length ratios
 l1 = 2;
-l2 = 1;
+l2 = 3;
 
 % Is l1 even or not?
 l1_even = false;
@@ -27,7 +28,7 @@ N_nums = primes(max_N);
 N_nums = N_nums(4:end);
 
 % Make directory
-folderName = ['square_prism_l1=' num2str(l1) '_l2=' num2str(l2) '_separated_cut_energy'];
+folderName = ['van_hove_square_prism_l1=' num2str(l1) '_l2=' num2str(l2) '_separated_ecut=' num2str(ecut_factor)];
 mkdir(folderName);
 
 % Set indices
@@ -114,7 +115,7 @@ for n = 1:size(N_nums, 2)
     max_energy_index = 0;
 
     for i = 1:total_sites
-        if (eigenvalues(i, i) < max_energy / 2)
+        if (eigenvalues(i, i) < max_energy / ecut_factor)
             max_energy_index = max_energy_index + 1;
         end
     end
@@ -1219,9 +1220,20 @@ set(figure(index_n + 2),'position',[0,100,1500,300])
 saveas(gcf, [folderName '/LSR_plot_combined.jpeg']);
 
 %% Plot proportions of solvable states
+
+% one-dimensional irreps
+prop_1d_irreps = zeros(size(size_array, 1), 1);
+
+for i = 1:size(size_array, 1)
+    total = size_array(i, 2) + size_array(i, 3) + size_array(i, 4) + size_array(i, 5) ...
+        + size_array(i, 7) + size_array(i, 8) + size_array(i, 9) + size_array(i, 10) ...
+        + 2 * (size_array(i, 6) + size_array(i, 11));
+    prop_1d_irreps(i) = (size_array(i, 2) + size_array(i, 3) + size_array(i, 4) + size_array(i, 5) ...
+        + size_array(i, 7) + size_array(i, 8) + size_array(i, 9) + size_array(i, 10)) / total;
+end
+
 figure(index_n + 3)
-proportions = sum(solvable_prop, 2);
-plot(N_nums(3:end), proportions(3:end), 'Linestyle','-','Marker','.')
+plot(N_nums, prop_1d_irreps, 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('Proportion of solvable states')
 xlabel('N')
 prop_solvable = 1 / (4 * (l1 * l1 + 2 * l1 * l2));

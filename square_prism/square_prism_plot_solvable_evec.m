@@ -1,6 +1,6 @@
 % Plot a solvable cube eigenstate
-n1 = 3;
-n2 = 3;
+n1 = 1;
+n2 = 2;
 num_sites = 40;
 
 % Find x-y coordinates

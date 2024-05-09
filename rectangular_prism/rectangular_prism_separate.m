@@ -2,10 +2,11 @@
 clear
 close all
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
+ecut_factor = 1;
 
 % Side length ratios
-l1 = 2;
-l2 = 3;
+l1 = 1;
+l2 = 2;
 l3 = 4;
 
 % length parity indicators
@@ -61,7 +62,7 @@ N_nums = primes(max_N);
 N_nums = N_nums(4:end);
 
 % Make directory
-folderName = ['l1=' num2str(l1) '_l2=' num2str(l2) '_l3=' num2str(l3) '_separated'];
+folderName = ['van_hove_l1=' num2str(l1) '_l2=' num2str(l2) '_l3=' num2str(l3) '_sep_ecut=' num2str(ecut_factor)];
 mkdir(folderName);
 
 % Allocate variable space
@@ -164,7 +165,7 @@ for n = 1:size(N_nums, 2)
     max_energy_index = 0;
 
     for i = 1:total_sites
-        if (eigenvalues(i, i) < max_energy / 3.1)
+        if (eigenvalues(i, i) <= max_energy / ecut_factor)
             max_energy_index = max_energy_index + 1;
         end
     end

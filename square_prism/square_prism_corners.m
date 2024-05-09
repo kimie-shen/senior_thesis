@@ -595,6 +595,7 @@ xlabel('N')
 ylabel('r')
 hold on 
 yline(0.39, '--', 'r = 0.39')
+yline(0.53, '--', 'r = 0.53')
 ylim([ylow yhigh])
 
 nexttile

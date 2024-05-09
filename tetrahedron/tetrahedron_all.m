@@ -3,14 +3,14 @@ clear;
 close all
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
 corner_potential = 0;
-e_cut_factor = 3;
+e_cut_factor = 1;
 
 % Find max N
 upper_lim = 30000; % Max number of sites allowed in laptop memory
 max_N = floor(sqrt(upper_lim) - 1);
 fprintf(['Max N = ' num2str(max_N) '\n'])
 N_nums = primes(max_N);
-N_nums = N_nums(4:end);
+N_nums = N_nums(24:end);
 %N_nums = [71];
 
 r_array = zeros(size(N_nums, 1), 6);

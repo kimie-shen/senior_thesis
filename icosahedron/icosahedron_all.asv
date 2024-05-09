@@ -3,6 +3,7 @@ clear;
 close all
 tolerance = 1e-8;  % Tolerance for degenerate energy levels
 corner_potential = 0;
+energy_cut_factor = 1;
 
 % Find max N
 upper_lim = 30000; % Max number of sites allowed in laptop memory
@@ -10,10 +11,10 @@ max_N = floor(sqrt(upper_lim / 5) - 1);
 fprintf(['Max N = ' num2str(max_N) '\n'])
 N_nums = primes(max_N);
 N_nums = N_nums(5:end);
-N_nums = [11];
+%N_nums = [23];
 
 % Make directory
-folderName = 'icosahedron_plots';
+folderName = ['icosahedron_plots_ecut=' num2str(energy_cut_factor)];
 mkdir(folderName);
 
 r_array = zeros(size(N_nums, 1), 11);
@@ -139,7 +140,7 @@ for n = 1:size(N_nums, 2)
     max_energy_index = 0;
 
     for i = 1:total_sites
-        if (eigenvalues(i, i) < max_energy / 3)
+        if (eigenvalues(i, i) <= max_energy / energy_cut_factor)
             max_energy_index = max_energy_index + 1;
         end
     end
@@ -148,7 +149,7 @@ for n = 1:size(N_nums, 2)
     for i = 1:max_energy_index
         c5_evals(i) = (eigenvectors(:, i).' * C5 * eigenvectors(:, i));
     end
-    fprintf('inv done \n')
+    fprintf('c5 done \n')
     
     for i = 1:max_energy_index
         c3_evals(i) = (eigenvectors(:, i).' * C3 * eigenvectors(:, i));
@@ -258,7 +259,7 @@ for n = 1:size(N_nums, 2)
         if (abs(energy_levels(i, 5) + 2 * cos(2 * pi / 5)) < 0.01)
             energy_levels_rounded(i, 5) = - 2 * cos(2 * pi / 5);
         elseif (abs(energy_levels(i, 5) + 2 * cos(4 * pi / 5)) < 0.01)
-            energy_levels(i, 5) = - 2 * cos(4 * pi / 5);
+            energy_levels_rounded(i, 5) = - 2 * cos(4 * pi / 5);
         else
             energy_levels_rounded(i, 5) = round(energy_levels(i, 5));
         end
@@ -270,7 +271,7 @@ for n = 1:size(N_nums, 2)
         trace_sigma_d = energy_levels_rounded(i, 3);
         trace_c3 = energy_levels_rounded(i, 4);
         trace_c5 = energy_levels_rounded(i, 5);
-        trace_inv = energy_levels_rounded(i, 5);
+        trace_inv = energy_levels_rounded(i, 6);
     
         traces = [trace_e, trace_sigma_d, trace_c3, trace_c5, trace_inv];
     
@@ -290,20 +291,25 @@ for n = 1:size(N_nums, 2)
             elevels_hg(index_hg, :) = energy_levels_rounded(i, :);
             index_hg = index_hg + 1;
         elseif (isequal(traces, [1, -1, 1, 1, -1])) % Au
+            elevels_au(index_au, :) = energy_levels_rounded(i, :);
+            index_au = index_au + 1;
+        elseif (isequal(traces, [3, 1, 0, -2 * cos(4 * pi / 5), -3])) % T1u
+            elevels_t1u(index_t1u, :) = energy_levels_rounded(i, :);
+            index_t1u = index_t1u + 1;
+        elseif (isequal(traces, [3, 1, 0, -2 * cos(2 * pi / 5), -3])) % T2u
+            elevels_t2u(index_t2u, :) = energy_levels_rounded(i, :);
+            index_t2u = index_t2u + 1;
+        elseif (isequal(traces, [4, 0, 1, -1, -4])) % Gu
+            elevels_gu(index_gu, :) = energy_levels_rounded(i, :);
+            index_gu = index_gu + 1;
+        elseif (isequal(traces, [5, -1, -1, 0, -5])) % Hu
+            elevels_hu(index_hu, :) = energy_levels_rounded(i, :);
+            index_hu = index_hu + 1;
+        elseif (isequal(traces, [2, 0, 2, 2, 0])) % Accidental degeneracy Ag + Au
             elevels_ag(index_ag, :) = energy_levels_rounded(i, :);
             index_ag = index_ag + 1;
-        elseif (isequal(traces, [3, 1, 0, -2 * cos(4 * pi / 5), -3])) % T1u
-            elevels_t1g(index_t1g, :) = energy_levels_rounded(i, :);
-            index_t1g = index_t1g + 1;
-        elseif (isequal(traces, [3, 1, 0, -2 * cos(2 * pi / 5), -3])) % T2u
-            elevels_t2g(index_t2g, :) = energy_levels_rounded(i, :);
-            index_t2g = index_t2g + 1;
-        elseif (isequal(traces, [4, 0, 1, -1, -4])) % Gu
-            elevels_gg(index_gg, :) = energy_levels_rounded(i, :);
-            index_gg = index_gg + 1;
-        elseif (isequal(traces, [5, -1, -1, 0, -5])) % Hu
-            elevels_hg(index_hg, :) = energy_levels_rounded(i, :);
-            index_hg = index_hg + 1;
+            elevels_au(index_au, :) = energy_levels_rounded(i, :);
+            index_au = index_au + 1;
         else 
             fprintf([num2str(energy_levels_rounded(i, 1)) ' ' num2str(energy_levels_rounded(i, 2)) ' ' ...
                 num2str(energy_levels_rounded(i, 3)) ' ' num2str(energy_levels_rounded(i, 4)) ' ' ...
@@ -614,6 +620,28 @@ set(figure(index_n),'position',[0,100,3000,400])
 saveas(gcf, [folderName '/LSR_plot.jpeg']);
 
 %% Plot proportions of solvable states
+
+
+% one-dimensional irreps
+prop_1d_irreps = zeros(size(size_array, 1), 1);
+
+for i = 1:size(size_array, 1)
+    total = size_array(i, 2) + size_array(i, 7)...
+        + 3 * (size_array(i, 3) + size_array(i, 4) + size_array(i, 8) + size_array(i, 9)) ...
+        + 4 * (size_array(i, 5) + size_array(i, 10)) ...
+        + 5 * (size_array(i, 6) + size_array(i, 11));
+    prop_1d_irreps(i) = (size_array(i, 2) + size_array(i, 7)) / total;
+end
+
+
+nexttile
+plot(N_nums, prop_1d_irreps, 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
+title('Proportion of solvable states in 1D irreps')
+xlabel('N')
+yline(1/12, '--', '1/12')
+ylim([0.07, 0.095])
+ylabel('Proportion')
+
 figure(index_n + 1)
 plot(N_nums, sum(solvable_prop, 2), 'Linestyle','-','Marker','.', 'MarkerEdgeColor', [0 0.4470 0.7410])
 title('Proportion of states which are solvable')
